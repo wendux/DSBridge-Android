@@ -5,8 +5,8 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import wendu.jsbridge.CompletionHandler;
-import wendu.jsbridge.DWebView;
+import wendu.dsbridge.CompletionHandler;
+import wendu.dsbridge.DWebView;
 public class MainActivity extends AppCompatActivity {
 
     @Override

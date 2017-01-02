@@ -2,7 +2,7 @@ package wendu.jsbdemo;
 import android.webkit.JavascriptInterface;
 import org.json.JSONException;
 import org.json.JSONObject;
-import wendu.jsbridge.CompletionHandler;
+import wendu.dsbridge.CompletionHandler;
 
 /**
  * Created by du on 16/12/31.

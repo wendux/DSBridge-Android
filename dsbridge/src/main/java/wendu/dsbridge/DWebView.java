@@ -1,4 +1,4 @@
-package wendu.jsbridge;
+package wendu.dsbridge;
 
 import android.annotation.TargetApi;
 import android.app.Dialog;
