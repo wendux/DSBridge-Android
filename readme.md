@@ -1,6 +1,6 @@
 # DSBridge
 
->DSBridge是目前地球上最好的IOS/Android   javascript bridge. DSBridge有四大特点： 支持同步调用、跨平台、三端皆易用。
+>DSBridge是目前地球上最好的IOS/Android   javascript bridge. 
 
 DSBridge-IOS:https://github.com/wendux/DSBridge-IOS
 
