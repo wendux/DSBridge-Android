@@ -6,6 +6,8 @@ DSBridge-IOS:https://github.com/wendux/DSBridge-IOS
 
 DSBridge-Android:https://github.com/wendux/DSBridge-Android
 
+与WebViewJavascriptBridge的对比请移步 [DSBridge VS WebViewJavascriptBridge]( http://www.jianshu.com/p/d967b0d85b97)
+
  **五分钟了解DSBridge**
 
 ## Web端
