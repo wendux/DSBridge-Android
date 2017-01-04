@@ -93,7 +93,12 @@ testSyn为同步api, js在调用同步api时会等待native返回，返回后js�
 
 testAsyn为异步api, 异步操作时调用handler.complete通知js，此时js中设置的回调将会被调用。
 
-**为了安全起见，所有可供js调用的api必须添加@JavascriptInterface标注**
+**为了在ios和android平台下兼容，对Android端Native API接口约定如下：**
+
+1. 返回值类型存在时为String、不存在时为void。
+2. 参数以JSON传递; DSBridge会将js参数自动转化为JSONObject，如果没有参数，也需要声明（会作为函数签名的一部分进行校验）。
+
+**为了安全起见，所有可供js调用的api必须添加@JavascriptInterface标注**。关于此话题想了解更多的话可以自行google.
 
 ### 注册Api
 
@@ -160,3 +165,9 @@ void evaluateJavascript(String script)
 ```
 
 DWebview已经实现 alert、prompt、comfirm对话框，您可以不做处理，也可以自定义。值得一提的是js 在调用alert函数正常情况下只要用户没有关闭alert对话框，js代码是会阻塞的，但是考虑到alert 对话框只有一个确定按钮，也就是说无论用户关闭还是确定都不会影响js代码流程，所以DWebview中在弹出alert对话框时会先给js返回，这样一来js就可以继续执行，而提示框等用户关闭时在关闭即可。如果你就是想要阻塞的alert，可以自定义。而DWebview的prompt、comfirm实现完全符合ecma标准，都是阻塞的。
+
+
+
+### 拉票
+
+如果你觉得不错，麻烦star一下哦！多谢支持😄。
