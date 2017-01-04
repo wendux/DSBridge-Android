@@ -170,4 +170,4 @@ DWebview已经实现 alert、prompt、comfirm对话框，您可以不做处理�
 
 ### 拉票
 
-如果你觉得不错，麻烦star一下哦！多谢支持😄。
+如果你觉得不错，麻烦star一下哦！多谢支持😄。如有问题，欢迎反馈，wechat: Demons-du
