@@ -121,6 +121,7 @@ public class DWebView extends WebView {
                     JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
                     if (annotation != null) {
                         Object ret;
+                        method.setAccessible(true);
                         if (asyn) {
                             final String cb = callback;
                             ret = method.invoke(jsb, arg, new CompletionHandler() {
