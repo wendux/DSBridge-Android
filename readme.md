@@ -14,7 +14,7 @@ Compare with WebViewJavascriptBridge: [DSBridge VS WebViewJavascriptBridge]( htt
 
 ## Usage
 
-1. Implement api in Java
+1. Implement apis in Java
 
    ```java
    public class JsApi{
@@ -33,7 +33,7 @@ Compare with WebViewJavascriptBridge: [DSBridge VS WebViewJavascriptBridge]( htt
 
    For security reason, Java api must be with "@JavascriptInterface" annotation, For more detail about this topic, please google .
 
-2. Setup api class to DWebView which instance.
+2. Setup api class to DWebView  instance.
 
    ```javascript
    import wendu.dsbridge.DWebView
@@ -42,7 +42,7 @@ Compare with WebViewJavascriptBridge: [DSBridge VS WebViewJavascriptBridge]( htt
    dwebView.setJavascriptInterface(new JsApi());
    ```
 
-3. Call Java api in Javascript, and declare a global  javascript function for java invocation.
+3. Call Java api in Javascript, and declare a global  javascript function for the following java invocation.
 
    ```javascript
    //Call Java API
@@ -102,7 +102,7 @@ In order to be compatible with IOS and Android, we make the following convention
 
 ### More about DWebview
 
-In DWebview, the fellowing functions will execute in main thread automaticlly, you need not to swith thread by yourself.
+In DWebview, the following functions will execute in main thread automatically, you need not to switch thread by yourself.
 
 ```java
 void loadUrl( String url) 
