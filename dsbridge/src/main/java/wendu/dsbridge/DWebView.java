@@ -156,6 +156,7 @@ public class DWebView extends WebView {
                 }
                 return "";
             }
+            int i=0;
 
             @Keep
             @JavascriptInterface

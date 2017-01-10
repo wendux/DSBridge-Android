@@ -32,6 +32,6 @@ public class JsApi{
 
     @JavascriptInterface
     public void testAsyn(JSONObject jsonObject, CompletionHandler handler) throws JSONException {
-        handler.complete(jsonObject.getString("msg")+" [asyn call]");
+        handler.complete(jsonObject.getString("msg")+" [ asyn call]");
     }
 }
