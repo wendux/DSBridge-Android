@@ -302,11 +302,12 @@ public class DWebView extends WebView {
             }
         }
 
+
         @Override
         public boolean onJsConfirm(WebView view, String url, String message,
                                    final JsResult result) {
-            if (webChromeClient != null) {
-                return webChromeClient.onJsConfirm(view, url, message, result);
+            if (webChromeClient != null && webChromeClient.onJsConfirm(view, url, message, result)) {
+                return true;
             } else {
                 final Handler mHandler = new Handler() {
                     @Override
@@ -344,8 +345,8 @@ public class DWebView extends WebView {
         @Override
         public boolean onJsPrompt(WebView view, String url, final String message,
                                   String defaultValue, final JsPromptResult result) {
-            if (webChromeClient != null) {
-                return webChromeClient.onJsPrompt(view, url, message, defaultValue, result);
+            if (webChromeClient != null && webChromeClient.onJsPrompt(view, url, message, defaultValue, result)) {
+                return true;
             } else {
                 final Handler mHandler = new Handler() {
                     @Override
