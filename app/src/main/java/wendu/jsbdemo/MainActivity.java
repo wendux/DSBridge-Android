@@ -7,6 +7,8 @@ import android.webkit.WebViewClient;
 
 import wendu.dsbridge.CompletionHandler;
 import wendu.dsbridge.DWebView;
+import wendu.dsbridge.OnReturnValue;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -21,14 +23,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                webView.callHandler("test",new Object[]{1,"hello"},new CompletionHandler(){
+                webView.callHandler("addValue",new Object[]{1,"hello"},new OnReturnValue(){
                     @Override
-                    public void complete(String retValue) {
+                    public void onValue(String retValue) {
                         Log.d("jsbridge","call succeed,return value is "+retValue);
                     }
                 });
 
-                webView.callHandler("test",null);
+               // webView.callHandler("test",null);
             }
         });
 

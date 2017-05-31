@@ -1,7 +1,12 @@
 package wendu.jsbdemo;
+import android.os.CountDownTimer;
 import android.webkit.JavascriptInterface;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 import wendu.dsbridge.CompletionHandler;
 
 /**
@@ -34,4 +39,23 @@ public class JsApi{
     public void testAsyn(JSONObject jsonObject, CompletionHandler handler) throws JSONException {
         handler.complete(jsonObject.getString("msg")+" [ asyn call]");
     }
+
+    @JavascriptInterface
+    public void callProgress(JSONObject jsonObject, final CompletionHandler handler) throws JSONException {
+
+        new CountDownTimer(11000, 1000) {
+            int i=10;
+            @Override
+            public void onTick(long millisUntilFinished) {
+                handler.setProgressData((i--)+"");
+
+            }
+            @Override
+            public void onFinish() {
+                handler.complete("");
+
+            }
+        }.start();
+    }
+
 }

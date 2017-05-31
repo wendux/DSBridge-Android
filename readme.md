@@ -6,12 +6,6 @@ DSBridge-IOS:https://github.com/wendux/DSBridge-IOS
 
 DSBridge-Android:https://github.com/wendux/DSBridge-Android
 
-Compare with WebViewJavascriptBridge: [DSBridge VS WebViewJavascriptBridge]( http://www.jianshu.com/p/d967b0d85b97)
-
-中文文档请移步：http://www.jianshu.com/p/f9c51b4a8135
-
- **Five minutes to know DSBridge**
-
 ## Usage
 
 1. Implement apis in Java
@@ -45,30 +39,29 @@ Compare with WebViewJavascriptBridge: [DSBridge VS WebViewJavascriptBridge]( htt
 3. Call Java api in Javascript, and declare a global  javascript function for the following java invocation.
 
    ```javascript
-   //Call Java API
-   var bridge = getJsBridge();
+
    //Call synchronously 
-   var str=bridge.call("testSyn", {msg: "testSyn"});
+   var str=dsBridge.call("testSyn", {msg: "testSyn"});
    //Call asynchronously
-   bridge.call("testAsyn", {msg: "testAsyn"}, function (v) {
+   dsBridge.call("testAsyn", {msg: "testAsyn"}, function (v) {
      alert(v);
    })
 
-   //Test will be called by Java
-   function test(arg1,arg2){
-     return arg1+arg2;
-   }
+   //Register javascrit function for Object-c invocation
+    dsBridge.register('addValue',function(r,l){
+        return r+l;
+    })
    ```
 
 4. Call Javascript function in java
 
    ```java
-   dwebView.callHandler("test",new Object[]{1,"hello"},new CompletionHandler(){
-      @Override
-      public void complete(String retValue) {
-        Log.d("jsbridge","call succeed,return value is "+retValue);
-      }
-    });
+   webView.callHandler("addValue",new Object[]{1,"hello"},new OnReturnValue(){
+                       @Override
+                       public void onValue(String retValue) {
+                           Log.d("jsbridge","call succeed,return value is "+retValue);
+              }
+   });
    ```
 
 ​    Notice: Be sure that calling javascript functions must at  "PageFinished". 
@@ -77,9 +70,9 @@ Compare with WebViewJavascriptBridge: [DSBridge VS WebViewJavascriptBridge]( htt
 
 ## Javascript API introduction
 
-### **getJsBridge** 
+### **dsBridge** 
 
-Get the bridge object。 Although you can call it  anywhere in the page, we also advise you to call it after dom ready.
+"dsBridge" is a built-in object , it has two method "call" and "register";
 
 ### bridge.call(method,[args,callback])
 
@@ -90,6 +83,14 @@ method: Java method name
 args: arguments with json object
 
 callback(String returnValue):callback to handle the result. **only asynchronous invocation required**.
+
+### dsBridge.register(methodName,function)
+
+Register javascript method for OC invocation.
+
+methodName: javascript function name
+
+function: javascript method body.
 
 ## Notice
 
