@@ -47,11 +47,13 @@ public class JsApi{
             int i=10;
             @Override
             public void onTick(long millisUntilFinished) {
+                //setProgressData can be called many times util complete be called.
                 handler.setProgressData((i--)+"");
 
             }
             @Override
             public void onFinish() {
+                //complete the js invocation with data; handler will expire when complete is called
                 handler.complete("");
 
             }

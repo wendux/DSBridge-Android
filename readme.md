@@ -86,7 +86,7 @@ callback(String returnValue):callback to handle the result. **only asynchronous 
 
 ### dsBridge.register(methodName,function)
 
-Register javascript method for OC invocation.
+Register javascript method for Native invocation.
 
 methodName: javascript function name
 
