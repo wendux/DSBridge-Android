@@ -1,4 +1,4 @@
-# DSBridge
+# DSBridge v2.0
 
 >DSBridge is currently the best Javascript bridge  in the world , by which we can call functions synchronously and asynchronously between web and Native . Moreover, both android and ios  are supported  ! 
 
