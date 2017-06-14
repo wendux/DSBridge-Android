@@ -40,25 +40,25 @@
 
 <script>
 
-            console.log(dsBridge)
+        console.log(dsBridge)
 
-            function callSyn() {
-                alert(dsBridge.call("testSyn", {msg: "testSyn"}))
-            }
+        function callSyn() {
+           alert(dsBridge.call("testSyn", {msg: "testSyn"}))
+        }
 
         function callAsyn() {
             dsBridge.call("testAsyn", {msg: "testAsyn"}, function (v) {
-                        alert(v)
-                    })
+                  alert(v)
+            })
         }
 
         function callAsyn_() {
             for(var i=0;i<2000;i++){
                 dsBridge.call("testAsyn", {msg: "js+"+i}, function (v) {
-                            if(v=="js+1999 [ asyn call]"){
-                                alert("全部任务执行结束")
-                            }
-                     })
+                    if(v=="js+1999 [ asyn call]"){
+                        alert("全部任务执行结束")
+                    }
+                 })
             }
         }
 
@@ -68,8 +68,8 @@
 
         function callNoArgAsyn() {
             dsBridge.call("testNoArgAsyn", function (v) {
-                        alert(v)
-                        });
+                alert(v)
+            });
         }
 
         function callNever() {
