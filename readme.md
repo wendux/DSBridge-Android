@@ -51,8 +51,8 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
    })
 
    //Register javascrit function for Native invocation
-    dsBridge.register('addValue',function(r,l){
-        return r+l;
+    dsBridge.register('addValue',function(l,r){
+        return l+r;
     })
    ```
 
@@ -60,10 +60,10 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
 
    ```java
    webView.callHandler("addValue",new Object[]{1,"hello"},new OnReturnValue(){
-                       @Override
-                       public void onValue(String retValue) {
-                           Log.d("jsbridge","call succeed,return value is "+retValue);
-              }
+          @Override
+          public void onValue(String retValue) {
+             Log.d("jsbridge","call succeed,return value is "+retValue);
+          }
    });
    ```
 
