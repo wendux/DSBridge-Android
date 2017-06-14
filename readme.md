@@ -50,7 +50,7 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
      alert(v);
    })
 
-   //Register javascrit function for Object-c invocation
+   //Register javascrit function for Native invocation
     dsBridge.register('addValue',function(r,l){
         return r+l;
     })
