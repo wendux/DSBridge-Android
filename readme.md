@@ -1,5 +1,7 @@
-# DSBridge v2.0
 
+# DSBridge
+
+[![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android)   [![MIT Licence](https://img.shields.io/packagist/l/doctrine/orm.svg)](https://opensource.org/licenses/mit-license.php)
 >DSBridge is currently the best Javascript bridge  in the world , by which we can call functions synchronously and asynchronously between web and Native . Moreover, both android and ios  are supported  ! 
 
 DSBridge-IOS:https://github.com/wendux/DSBridge-IOS
@@ -8,6 +10,27 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
 
 2.0更新列表：https://juejin.im/post/593fa055128fe1006aff700a
 
+## Download
+
+1. Add the JitPack repository to your build file
+
+   ```java
+   allprojects {
+     repositories {
+      ...
+      maven { url 'https://jitpack.io' }
+     }
+   }
+   ```
+
+2. Add the dependency
+
+   ```java
+   dependencies {
+   	compile 'com.github.wendux:DSBridge-Android:2.0-SNAPSHOT'
+   	//compile 'com.github.wendux:DSBridge-Android:master-SNAPSHOT'
+   }
+   ```
 
 ## Usage
 
