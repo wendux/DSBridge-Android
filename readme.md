@@ -139,10 +139,8 @@ void evaluateJavascript(String script)
 
 
 
-### Alert dialog
-
-In order to prevent unnecessary obstruction, the alert dialog was implemented asynchronously , that is to say, if you call alert in javascript , it will be returned directly no matter whether the user has to deal with. becase the code flow is not subject to the user operation no matter whether user  click ok button  or close the alert dialog. if you don't need this feature, you can custom the alert dialog by override "onJsAlert" callback in WebChromeClient class.
-
+###  alert/confirm/prompt dialog
+For alert/confirm/prompt dialog, DSBridge has implemented them  all by default, if you want to custom them, override the corresponding  callback in WebChromeClient class.
 ### Finally
 
 If you like DSBridge, please star to let more people know it , Thank you  😄.
