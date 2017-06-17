@@ -302,6 +302,7 @@ public class DWebView extends WebView {
             Dialog alertDialog = new AlertDialog.Builder(getContext()).
                     setTitle("提示").
                     setMessage(message).
+                    setCancelable(false).
                     setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
