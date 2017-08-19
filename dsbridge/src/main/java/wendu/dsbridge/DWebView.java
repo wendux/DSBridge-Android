@@ -226,33 +226,6 @@ public class DWebView extends WebView {
         }
 
         @Override
-        public boolean onJsAlert(WebView view, String url, final String message, JsResult result) {
-            if (webChromeClient != null) {
-                if (webChromeClient.onJsAlert(view, url, message, result)) {
-                    return true;
-                }
-            }
-            result.confirm();
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    Dialog alertDialog = new AlertDialog.Builder(getContext()).
-                            setTitle("提示").
-                            setMessage(message).
-                            setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .create();
-                    alertDialog.show();
-                }
-            });
-            return true;
-        }
-
-        @Override
         public void onReceivedIcon(WebView view, Bitmap icon) {
             if (webChromeClient != null) {
                 webChromeClient.onReceivedIcon(view, icon);
@@ -324,8 +297,28 @@ public class DWebView extends WebView {
             } else {
                 super.onCloseWindow(window);
             }
+        }    @Override
+        public boolean onJsAlert(WebView view, String url, final String message, final JsResult result) {
+            if (webChromeClient != null) {
+                if (webChromeClient.onJsAlert(view, url, message, result)) {
+                    return true;
+                }
+            }
+            Dialog alertDialog = new AlertDialog.Builder(getContext()).
+                    setTitle("提示").
+                    setMessage(message).
+                    setCancelable(false).
+                    setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            result.confirm();
+                        }
+                    })
+                    .create();
+            alertDialog.show();
+            return true;
         }
-
 
         @Override
         public boolean onJsConfirm(WebView view, String url, String message,
@@ -333,12 +326,6 @@ public class DWebView extends WebView {
             if (webChromeClient != null && webChromeClient.onJsConfirm(view, url, message, result)) {
                 return true;
             } else {
-                final Handler mHandler = new Handler() {
-                    @Override
-                    public void handleMessage(Message msg) {
-                        throw new RuntimeException();
-                    }
-                };
                 DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -347,7 +334,6 @@ public class DWebView extends WebView {
                         } else {
                             result.cancel();
                         }
-                        mHandler.sendEmptyMessage(1);
                     }
                 };
                 new AlertDialog.Builder(getContext()).setTitle("提示")
@@ -355,11 +341,6 @@ public class DWebView extends WebView {
                         .setCancelable(false)
                         .setPositiveButton("确定", listener)
                         .setNegativeButton("取消", listener).show();
-
-                try {
-                    Looper.getMainLooper().loop();
-                } catch (RuntimeException e) {
-                }
                 return true;
 
             }
@@ -369,17 +350,15 @@ public class DWebView extends WebView {
         @Override
         public boolean onJsPrompt(WebView view, String url, final String message,
                                   String defaultValue, final JsPromptResult result) {
+            super.onJsPrompt(view,url,message,defaultValue,result);
             if (webChromeClient != null && webChromeClient.onJsPrompt(view, url, message, defaultValue, result)) {
                 return true;
             } else {
-                final Handler mHandler = new Handler() {
-                    @Override
-                    public void handleMessage(Message msg) {
-                        throw new RuntimeException();
-                    }
-                };
                 final EditText editText = new EditText(getContext());
                 editText.setText(defaultValue);
+                if (defaultValue!=null){
+                    editText.setSelection(defaultValue.length());
+                }
                 float dpi = getContext().getResources().getDisplayMetrics().density;
                 DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                     @Override
@@ -389,7 +368,6 @@ public class DWebView extends WebView {
                         } else {
                             result.cancel();
                         }
-                        mHandler.sendEmptyMessage(1);
                     }
                 };
                 new AlertDialog.Builder(getContext())
@@ -408,10 +386,6 @@ public class DWebView extends WebView {
                 editText.setLayoutParams(layoutParams);
                 int padding = (int) (15 * dpi);
                 editText.setPadding(padding - (int) (5 * dpi), padding, padding, padding);
-                try {
-                    Looper.getMainLooper().loop();
-                } catch (RuntimeException e) {
-                }
                 return true;
             }
 

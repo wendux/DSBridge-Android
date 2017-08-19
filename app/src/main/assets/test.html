@@ -33,7 +33,7 @@
 <div class="btn" onclick="callNoArgAsyn()">无参函数异步调用</div>
 <div class="btn" onclick="callAsyn_()">压力测试，连续调用2k次异步api</div>
 <div class="btn" onclick="callNever()">不调用(没有@JavascriptInterface标注)<br/>仅Android,IOS忽略此项</div>
-<div class="btn" onclick="callProgress()">连续回调 <span id='progress'></span></div>
+<div class="btn" onclick="callProgress()">多次回调 <span id='progress'></span></div>
 
 <div class="btn" onclick="alert(confirm('Press a button'))">confirm test</div>
 <div class="btn" onclick="alert(prompt('Please input user name.','你好，世界'))">prompt test</div>
@@ -42,25 +42,25 @@
            //dsbridge初始化化代码
             window._dsbridge&&_dsbridge.init();
 
-            console.log(dsBridge)
+        console.log(dsBridge)
 
-            function callSyn() {
-                alert(dsBridge.call("testSyn", {msg: "testSyn"}))
-            }
+        function callSyn() {
+           alert(dsBridge.call("testSyn", {msg: "testSyn"}))
+        }
 
         function callAsyn() {
             dsBridge.call("testAsyn", {msg: "testAsyn"}, function (v) {
-                        alert(v)
-                    })
+                  alert(v)
+            })
         }
 
         function callAsyn_() {
             for(var i=0;i<2000;i++){
                 dsBridge.call("testAsyn", {msg: "js+"+i}, function (v) {
-                            if(v=="js+1999 [ asyn call]"){
-                                alert("全部任务执行结束")
-                            }
-                     })
+                    if(v=="js+1999 [ asyn call]"){
+                        alert("全部任务执行结束")
+                    }
+                 })
             }
         }
 
@@ -70,8 +70,8 @@
 
         function callNoArgAsyn() {
             dsBridge.call("testNoArgAsyn", function (v) {
-                        alert(v)
-                        });
+                alert(v)
+            });
         }
 
         function callNever() {

@@ -1,10 +1,36 @@
+
 # DSBridge
 
+[![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android)   [![MIT Licence](https://img.shields.io/packagist/l/doctrine/orm.svg)](https://opensource.org/licenses/mit-license.php)
 >DSBridge is currently the best Javascript bridge  in the world , by which we can call functions synchronously and asynchronously between web and Native . Moreover, both android and ios  are supported  ! 
 
 DSBridge-IOS:https://github.com/wendux/DSBridge-IOS
 
 DSBridge-Android:https://github.com/wendux/DSBridge-Android
+
+2.0更新列表：https://juejin.im/post/593fa055128fe1006aff700a
+
+## Download
+
+1. Add the JitPack repository to your build file
+
+   ```java
+   allprojects {
+     repositories {
+      ...
+      maven { url 'https://jitpack.io' }
+     }
+   }
+   ```
+
+2. Add the dependency
+
+   ```java
+   dependencies {
+   	compile 'com.github.wendux:DSBridge-Android:2.0-SNAPSHOT'
+   	//compile 'com.github.wendux:DSBridge-Android:master-SNAPSHOT'
+   }
+   ```
 
 ## Usage
 
@@ -49,9 +75,9 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
      alert(v);
    })
 
-   //Register javascrit function for Object-c invocation
-    dsBridge.register('addValue',function(r,l){
-        return r+l;
+   //Register javascrit function for Native invocation
+    dsBridge.register('addValue',function(l,r){
+        return l+r;
     })
    ```
 
@@ -59,10 +85,10 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
 
    ```java
    webView.callHandler("addValue",new Object[]{1,"hello"},new OnReturnValue(){
-                       @Override
-                       public void onValue(String retValue) {
-                           Log.d("jsbridge","call succeed,return value is "+retValue);
-              }
+          @Override
+          public void onValue(String retValue) {
+             Log.d("jsbridge","call succeed,return value is "+retValue);
+          }
    });
    ```
 
@@ -88,7 +114,7 @@ callback(String returnValue):callback to handle the result. **only asynchronous 
 
 ### dsBridge.register(methodName,function)
 
-Register javascript method for OC invocation.
+Register javascript method for Native invocation.
 
 methodName: javascript function name
 
@@ -115,10 +141,8 @@ void evaluateJavascript(String script)
 
 
 
-### Alert dialog
-
-In order to prevent unnecessary obstruction, the alert dialog was implemented asynchronously , that is to say, if you call alert in javascript , it will be returned directly no matter whether the user has to deal with. becase the code flow is not subject to the user operation no matter whether user  click ok button  or close the alert dialog. if you don't need this feature, you can custom the alert dialog by override "onJsAlert" callback in WebChromeClient class.
-
+###  alert/confirm/prompt dialog
+For alert/confirm/prompt dialog, DSBridge has implemented them  all by default, if you want to custom them, override the corresponding  callback in WebChromeClient class.
 ### Finally
 
 If you like DSBridge, please star to let more people know it , Thank you  😄.
