@@ -39,6 +39,8 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
 3. Call Java api in Javascript, and declare a global  javascript function for the following java invocation.
 
    ```javascript
+   //init dsbridge
+   window._dsbridge&&_dsbridge.init();
 
    //Call synchronously 
    var str=dsBridge.call("testSyn", {msg: "testSyn"});
