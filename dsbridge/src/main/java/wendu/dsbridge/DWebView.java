@@ -1,7 +1,9 @@
 package wendu.dsbridge;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.Dialog;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
@@ -37,6 +39,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.util.Arrays;
@@ -53,6 +56,41 @@ public class DWebView extends WebView {
     private Object jsb;
     private String APP_CACAHE_DIRNAME;
     int callID = 0;
+    private static final int EXEC_SCRIPT=1;
+    private static final int LOAD_URL=2;
+    private static final int LOAD_URL_WITH_HEADERS=3;
+    MyHandler mainThreadHandler=null;
+
+    class MyHandler extends Handler {
+        //  Using WeakReference to avoid memory leak
+        WeakReference<Activity> mActivityReference;
+        MyHandler(Activity activity) {
+            mActivityReference= new WeakReference<>(activity);
+        }
+        @Override
+        public void handleMessage(Message msg) {
+            final Activity activity = mActivityReference.get();
+            if (activity != null) {
+                switch (msg.what){
+                    case EXEC_SCRIPT:_evaluateJavascript((String)msg.obj); break;
+                    case LOAD_URL: DWebView.super.loadUrl((String)msg.obj); break;
+                    case LOAD_URL_WITH_HEADERS:{
+                        RequestInfo info= (RequestInfo)msg.obj;
+                        DWebView.super.loadUrl(info.url,info.headers);
+                    } break;
+                }
+            }
+        }
+    }
+    class RequestInfo {
+        String url;
+        Map<String, String> headers;
+        RequestInfo(String url,Map<String, String> additionalHttpHeaders){
+            this.url=url;
+            this.headers=additionalHttpHeaders;
+        }
+    }
+
     Map<Integer, OnReturnValue> handlerMap = new HashMap<>();
 
     public DWebView(Context context, AttributeSet attrs) {
@@ -67,6 +105,7 @@ public class DWebView extends WebView {
 
     @Keep
     void init() {
+        mainThreadHandler=new MyHandler((Activity) getContext());
         APP_CACAHE_DIRNAME = getContext().getFilesDir().getAbsolutePath() + "/webcache";
         WebSettings settings = getSettings();
         settings.setDomStorageEnabled(true);
@@ -170,7 +209,7 @@ public class DWebView extends WebView {
                         Log.e("SynWebView", error);
                     }
                 } catch (Exception e) {
-                    evaluateJavascript(String.format("alert('ERROR! \\n调用失败：函数名或参数错误 ［%s］')", e.getMessage()));
+                    evaluateJavascript(String.format("alert('ERROR! \\nCall failed：Function does not exist or parameter is invalid［%s］')", e.getMessage()));
                     e.printStackTrace();
                 }
                 return "";
@@ -305,10 +344,9 @@ public class DWebView extends WebView {
                 }
             }
             Dialog alertDialog = new AlertDialog.Builder(getContext()).
-                    setTitle("提示").
                     setMessage(message).
                     setCancelable(false).
-                    setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
@@ -336,11 +374,11 @@ public class DWebView extends WebView {
                         }
                     }
                 };
-                new AlertDialog.Builder(getContext()).setTitle("提示")
+                new AlertDialog.Builder(getContext())
                         .setMessage(message)
                         .setCancelable(false)
-                        .setPositiveButton("确定", listener)
-                        .setNegativeButton("取消", listener).show();
+                        .setPositiveButton(android.R.string.ok, listener)
+                        .setNegativeButton(android.R.string.cancel, listener).show();
                 return true;
 
             }
@@ -374,8 +412,8 @@ public class DWebView extends WebView {
                         .setTitle(message)
                         .setView(editText)
                         .setCancelable(false)
-                        .setPositiveButton("确定", listener)
-                        .setNegativeButton("取消", listener)
+                        .setPositiveButton(android.R.string.ok, listener)
+                        .setNegativeButton(android.R.string.cancel, listener)
                         .show();
                 FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
@@ -528,23 +566,20 @@ public class DWebView extends WebView {
 
     private void _evaluateJavascript(String script) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            evaluateJavascript(script, null);
+            DWebView.super.evaluateJavascript(script, null);
         } else {
             loadUrl("javascript:" + script);
         }
     }
 
-    //如果当前在主线程，不要直接调用post,这可能会延迟js执行
     public void evaluateJavascript(final String script) {
         if (Looper.getMainLooper() == Looper.myLooper()) {
             _evaluateJavascript(script);
         } else {
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    _evaluateJavascript(script);
-                }
-            });
+            Message msg=new Message();
+            msg.what=EXEC_SCRIPT;
+            msg.obj=script;
+            mainThreadHandler.sendMessage(msg);
         }
     }
 
@@ -553,7 +588,6 @@ public class DWebView extends WebView {
         super.clearCache(includeDiskFiles);
         CookieManager.getInstance().removeAllCookie();
         Context context = getContext();
-        //清理Webview缓存数据库
         try {
             context.deleteDatabase("webview.db");
             context.deleteDatabase("webviewCache.db");
@@ -561,16 +595,14 @@ public class DWebView extends WebView {
             e.printStackTrace();
         }
 
-        //WebView 缓存文件
         File appCacheDir = new File(APP_CACAHE_DIRNAME);
         File webviewCacheDir = new File(context.getCacheDir()
                 .getAbsolutePath() + "/webviewCache");
 
-        //删除webview 缓存目录
         if (webviewCacheDir.exists()) {
             deleteFile(webviewCacheDir);
         }
-        //删除webview 缓存 缓存目录
+
         if (appCacheDir.exists()) {
             deleteFile(appCacheDir);
         }
@@ -593,13 +625,11 @@ public class DWebView extends WebView {
     }
 
     @Override
-    public void loadUrl(final String url) {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                DWebView.super.loadUrl(url);
-            }
-        });
+    public void loadUrl( String url) {
+        Message msg=new Message();
+        msg.what=LOAD_URL;
+        msg.obj=url;
+        mainThreadHandler.sendMessage(msg);
     }
 
     public void callHandler(String method, Object[] args) {
@@ -618,14 +648,14 @@ public class DWebView extends WebView {
 
     }
 
+
+
     @Override
-    public void loadUrl(final String url, final Map<String, String> additionalHttpHeaders) {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                DWebView.super.loadUrl(url, additionalHttpHeaders);
-            }
-        });
+    public void loadUrl(String url, Map<String, String> additionalHttpHeaders) {
+        Message msg=new Message();
+        msg.what=LOAD_URL_WITH_HEADERS;
+        msg.obj=new RequestInfo(url,additionalHttpHeaders);
+        mainThreadHandler.sendMessage(msg);
     }
 
     public void setJavascriptInterface(Object object) {

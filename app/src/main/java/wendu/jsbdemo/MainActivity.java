@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
         final DWebView webView= (DWebView) findViewById(R.id.webview);
         webView.setJavascriptInterface(new JsApi());
         webView.clearCache(true);
+        //webView.loadUrl("http://10.99.1.175:63341/Fly/demon/dsbridge.html");
         webView.loadUrl("file:///android_asset/test.html");
         webView.setWebViewClient(new WebViewClient(){
             @Override

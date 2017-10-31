@@ -6,6 +6,13 @@
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
     <meta name="viewport" content="width=device-width,initial-scale=0.5,user-scalable=no"/>
+    <script src="https://unpkg.com/flyio/dist/fly.min.js"></script>
+    <script src="https://unpkg.com/flyio/dist/engine-wrapper.min.js"></script>
+    <script src="https://unpkg.com/flyio/dist/adapter/dsbridge.min.js"></script>
+    <script>
+      var engine = EngineWrapper(dsbAdapter)
+      fly.engine = engine;
+    </script>
 
 </head>
 <style>
@@ -38,9 +45,11 @@
 <div class="btn" onclick="alert(confirm('Press a button'))">confirm test</div>
 <div class="btn" onclick="alert(prompt('Please input user name.','你好，世界'))">prompt test</div>
 
+<div class="btn" onclick="request()">Forwarding ajax request</div>
+
 <script>
-           //dsbridge初始化化代码
-            window._dsbridge&&_dsbridge.init();
+        //dsbridge初始化化代码
+        window._dsbridge&&_dsbridge.init();
 
         console.log(dsBridge)
 
@@ -91,6 +100,12 @@
         dsBridge.register('addValue',function(r,l){
          return r+l;
         })
+
+        function request(){
+          fly.get("https://www.baidu.com/").then(function(d){
+            alert(d.data)
+          })
+        }
 
         </script>
 </body>

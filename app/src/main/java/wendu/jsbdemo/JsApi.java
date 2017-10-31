@@ -1,12 +1,30 @@
 package wendu.jsbdemo;
+import android.app.DownloadManager;
 import android.os.CountDownTimer;
+import android.util.Base64;
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okio.BufferedSink;
 import wendu.dsbridge.CompletionHandler;
 
 /**
@@ -59,5 +77,22 @@ public class JsApi{
             }
         }.start();
     }
+
+    /**
+     *
+     * @param requestData
+     * @param handler
+     *
+     * Note: This api is for Fly.js
+     * In browsers, Ajax requests are sent by browsers, and Fly can
+     * redirect requests to native, more about Fly see  https://github.com/wendux/fly
+     */
+
+    @JavascriptInterface
+    public void onAjaxRequest(JSONObject requestData, CompletionHandler handler){
+        // Handle ajax request redirected by Fly
+        AjaxHandler.onAjaxRequest(requestData,handler);
+    }
+
 
 }
