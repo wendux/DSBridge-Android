@@ -1,11 +1,12 @@
 package wendu.jsbdemo;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
-import wendu.dsbridge.CompletionHandler;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+import com.tencent.smtt.sdk.WebView;
+import com.tencent.smtt.sdk.WebViewClient;
+
 import wendu.dsbridge.DWebView;
 import wendu.dsbridge.OnReturnValue;
 

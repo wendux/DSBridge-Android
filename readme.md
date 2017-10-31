@@ -27,8 +27,7 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
 
    ```java
    dependencies {
-   	compile 'com.github.wendux:DSBridge-Android:2.0-SNAPSHOT'
-   	//compile 'com.github.wendux:DSBridge-Android:master-SNAPSHOT'
+   	compile 'com.github.wendux:DSBridge-Android:x5-SNAPSHOT'
    }
    ```
 

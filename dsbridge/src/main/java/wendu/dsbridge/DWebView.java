@@ -3,7 +3,6 @@ package wendu.dsbridge;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
@@ -19,20 +18,21 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.ConsoleMessage;
-import android.webkit.CookieManager;
-import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
-import android.webkit.JsPromptResult;
-import android.webkit.JsResult;
-import android.webkit.PermissionRequest;
-import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebStorage;
-import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+
+import com.tencent.smtt.export.external.interfaces.ConsoleMessage;
+import com.tencent.smtt.export.external.interfaces.GeolocationPermissionsCallback;
+import com.tencent.smtt.export.external.interfaces.IX5WebChromeClient;
+import com.tencent.smtt.export.external.interfaces.JsPromptResult;
+import com.tencent.smtt.export.external.interfaces.JsResult;
+import com.tencent.smtt.sdk.CookieManager;
+import com.tencent.smtt.sdk.ValueCallback;
+import com.tencent.smtt.sdk.WebChromeClient;
+import com.tencent.smtt.sdk.WebSettings;
+import com.tencent.smtt.sdk.WebStorage;
+import com.tencent.smtt.sdk.WebView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,6 +45,8 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW;
 
 
 /**
@@ -120,8 +122,9 @@ public class DWebView extends WebView {
         settings.setLoadWithOverviewMode(true);
         settings.setSupportMultipleWindows(true);
         settings.setAppCachePath(APP_CACAHE_DIRNAME);
+
         if (Build.VERSION.SDK_INT >= 21) {
-            settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+            settings.setMixedContentMode(MIXED_CONTENT_ALWAYS_ALLOW);
         }
         settings.setUseWideViewPort(true);
         super.setWebChromeClient(mWebChromeClient);
@@ -283,7 +286,7 @@ public class DWebView extends WebView {
         }
 
         @Override
-        public void onShowCustomView(View view, CustomViewCallback callback) {
+        public void onShowCustomView(View view, IX5WebChromeClient.CustomViewCallback callback) {
             if (webChromeClient != null) {
                 webChromeClient.onShowCustomView(view, callback);
             } else {
@@ -293,7 +296,7 @@ public class DWebView extends WebView {
 
         @Override
         public void onShowCustomView(View view, int requestedOrientation,
-                                     CustomViewCallback callback) {
+                                     IX5WebChromeClient.CustomViewCallback callback) {
             if (webChromeClient != null) {
                 webChromeClient.onShowCustomView(view, requestedOrientation, callback);
             } else {
@@ -459,14 +462,20 @@ public class DWebView extends WebView {
             super.onReachedMaxAppCacheSize(requiredStorage, quota, quotaUpdater);
         }
 
-        @Override
-        public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
-            if (webChromeClient != null) {
-                webChromeClient.onGeolocationPermissionsShowPrompt(origin, callback);
-            } else {
-                super.onGeolocationPermissionsShowPrompt(origin, callback);
-            }
-        }
+
+
+
+//
+//        @Override
+//        public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+//            if (webChromeClient != null) {
+//                webChromeClient.onGeolocationPermissionsShowPrompt(origin, callback);
+//            } else {
+//                super.onGeolocationPermissionsShowPrompt(origin, callback);
+//            }
+//        }
+
+
 
         @Override
         public void onGeolocationPermissionsHidePrompt() {
@@ -477,25 +486,22 @@ public class DWebView extends WebView {
             }
         }
 
-
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
-        public void onPermissionRequest(PermissionRequest request) {
+        public void onGeolocationPermissionsShowPrompt(String s, GeolocationPermissionsCallback geolocationPermissionsCallback) {
             if (webChromeClient != null) {
-                webChromeClient.onPermissionRequest(request);
-            } else {
-                super.onPermissionRequest(request);
-            }
+                webChromeClient.onGeolocationPermissionsShowPrompt(s, geolocationPermissionsCallback);
+           } else {
+              super.onGeolocationPermissionsShowPrompt(s, geolocationPermissionsCallback);
+           }
+
         }
 
-
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
-        public void onPermissionRequestCanceled(PermissionRequest request) {
-            if (webChromeClient != null) {
-                webChromeClient.onPermissionRequestCanceled(request);
-            } else {
-                super.onPermissionRequestCanceled(request);
+        public void openFileChooser(ValueCallback<Uri> valueCallback, String s, String s1) {
+            if(webChromeClient !=null){
+                webChromeClient.openFileChooser(valueCallback, s, s1);
+            }else {
+                super.openFileChooser(valueCallback, s, s1);
             }
         }
 
@@ -505,15 +511,6 @@ public class DWebView extends WebView {
                 return webChromeClient.onJsTimeout();
             }
             return super.onJsTimeout();
-        }
-
-        @Override
-        public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-            if (webChromeClient != null) {
-                webChromeClient.onConsoleMessage(message, lineNumber, sourceID);
-            } else {
-                super.onConsoleMessage(message, lineNumber, sourceID);
-            }
         }
 
         @Override
@@ -560,6 +557,7 @@ public class DWebView extends WebView {
             return super.onShowFileChooser(webView, filePathCallback, fileChooserParams);
         }
     };
+
     private void injectJs() {
         evaluateJavascript("function getJsBridge(){window._dsf=window._dsf||{};return{call:function(b,a,c){\"function\"==typeof a&&(c=a,a={});if(\"function\"==typeof c){window.dscb=window.dscb||0;var d=\"dscb\"+window.dscb++;window[d]=c;a._dscbstub=d}a=JSON.stringify(a||{});return window._dswk?prompt(window._dswk+b,a):\"function\"==typeof _dsbridge?_dsbridge(b,a):_dsbridge.call(b,a)},register:function(b,a){\"object\"==typeof b?Object.assign(window._dsf,b):window._dsf[b]=a}}}dsBridge=getJsBridge();");
     }
@@ -647,7 +645,6 @@ public class DWebView extends WebView {
         evaluateJavascript(script);
 
     }
-
 
 
     @Override
