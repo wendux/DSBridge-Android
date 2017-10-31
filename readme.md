@@ -28,6 +28,10 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
    ```java
    dependencies {
    	compile 'com.github.wendux:DSBridge-Android:2.0-SNAPSHOT'
+
+   	// support  the x5 browser core of tencent
+   	// compile 'com.github.wendux:DSBridge-Android:x5-SNAPSHOT'
+
    	//compile 'com.github.wendux:DSBridge-Android:master-SNAPSHOT'
    }
    ```
