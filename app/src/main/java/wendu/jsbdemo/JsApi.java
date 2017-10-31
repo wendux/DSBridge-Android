@@ -1,30 +1,11 @@
 package wendu.jsbdemo;
-import android.app.DownloadManager;
+
 import android.os.CountDownTimer;
-import android.util.Base64;
-import android.util.Log;
 import android.webkit.JavascriptInterface;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okio.BufferedSink;
 import wendu.dsbridge.CompletionHandler;
 
 /**
