@@ -10,6 +10,8 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
 
 2.0更新列表：https://juejin.im/post/593fa055128fe1006aff700a
 
+中文文档：https://github.com/wendux/DSBridge-Android/blob/master/readme.md
+
 ## Download
 
 1. Add the JitPack repository to your build file
