@@ -113,7 +113,7 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
 
 ### **dsBridge** 
 
-"dsBridge" is a built-in object , it has two method "call" and "register";
+"dsBridge" is available after dsBridge Initialization  , it has two method "call" and "register";
 
 ### bridge.call(method,[args,callback])
 

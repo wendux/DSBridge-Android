@@ -93,10 +93,7 @@ DSBridge 是H5页面与Native之间通信的桥梁，它有如下特点：
      dsBridge.call("testAsyn", {msg: "testAsyn"}, function (v) {
        alert(v);
      })
-     //Register javascrit function for Native invocation
-      dsBridge.register('addValue',function(l,r){
-          return l+r;
-      })
+
      ```
 
 4. Native 调用 h5 中的 javascript API
