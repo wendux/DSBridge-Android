@@ -45,6 +45,7 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
        //for synchronous invocation
        @JavascriptInterface
        String testSyn(JSONObject jsonObject) throws JSONException {
+           // The return value type can only be  String
            return jsonObject.getString("msg") + "［syn call］";
        }
        //for asynchronous invocation
@@ -68,22 +69,28 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
 
 3. Call Java api in Javascript, and declare a global  javascript function for the following java invocation.
 
-   ```javascript
-   //init dsbridge
-   window._dsbridge&&_dsbridge.init();
+   - Init dsBridge
 
-   //Call synchronously 
-   var str=dsBridge.call("testSyn", {msg: "testSyn"});
-   //Call asynchronously
-   dsBridge.call("testAsyn", {msg: "testAsyn"}, function (v) {
-     alert(v);
-   })
+     ```javascript
+     window._dsbridge&&_dsbridge.init();
+     ```
 
-   //Register javascrit function for Native invocation
-    dsBridge.register('addValue',function(l,r){
-        return l+r;
-    })
-   ```
+   - Call API
+
+     ```javascript
+
+     //Call synchronously 
+     var str=dsBridge.call("testSyn", {msg: "testSyn"});
+
+     //Call asynchronously
+     dsBridge.call("testAsyn", {msg: "testAsyn"}, function (v) {
+       alert(v);
+     })
+     //Register javascrit function for Native invocation
+      dsBridge.register('addValue',function(l,r){
+          return l+r;
+      })
+     ```
 
 4. Call Javascript function in java
 
@@ -130,7 +137,7 @@ function: javascript method body.
 
 In order to be compatible with IOS and Android, we make the following convention  on native api signature:
 
-1. The tye of return value must be String; if not need, just return null.
+1. The tye of return value must be **String;** if not need, just return null.
 2. The arguments  passed by   JSONObject, if the api doesn't need argument, you still need declare the jsonObject argument. 
 
 ### More about DWebview
