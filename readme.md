@@ -74,10 +74,9 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
    - Init dsBridge
 
      ```javascript
-     //引入dsBridge初始化代码
-     //cdn方式引入
+     //cdn
      //<script src="https://unpkg.com/dsbridge/dist/dsbridge.js"> </script>
-     //npm方式引入
+     //npm
      //npm install dsbridge
      var dsBridge=require("dsbridge")
      ```
