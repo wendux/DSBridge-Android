@@ -92,7 +92,7 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
      dsBridge.call("testAsyn", {msg: "testAsyn"}, function (v) {
        alert(v);
      })
-     //Register javascrit function for Native invocation
+     //Register javascript function for Native invocation
       dsBridge.register('addValue',function(l,r){
           return l+r;
       })
