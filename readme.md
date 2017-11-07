@@ -63,22 +63,32 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
 
 3. Call Java api in Javascript, and declare a global  javascript function for the following java invocation.
 
-   ```javascript
-   //init dsbridge
-   window._dsbridge&&_dsbridge.init();
+   - Init dsBridge
 
-   //Call synchronously 
-   var str=dsBridge.call("testSyn", {msg: "testSyn"});
-   //Call asynchronously
-   dsBridge.call("testAsyn", {msg: "testAsyn"}, function (v) {
-     alert(v);
-   })
+     ```javascript
+     //cdn
+     //<script src="https://unpkg.com/dsbridge/dist/dsbridge.js"> </script>
+     //npm
+     //npm install dsbridge
+     var dsBridge=require("dsbridge")
+     ```
 
-   //Register javascrit function for Native invocation
-    dsBridge.register('addValue',function(l,r){
-        return l+r;
-    })
-   ```
+   - Call API
+
+     ```javascript
+
+     //Call synchronously
+     var str=dsBridge.call("testSyn", {msg: "testSyn"});
+
+     //Call asynchronously
+     dsBridge.call("testAsyn", {msg: "testAsyn"}, function (v) {
+       alert(v);
+     })
+     //Register javascript function for Native invocation
+      dsBridge.register('addValue',function(l,r){
+          return l+r;
+      })
+     ```
 
 4. Call Javascript function in java
 
