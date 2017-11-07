@@ -1,0 +1,27 @@
+{
+  "name": "dsbridge",
+  "version": "2.0.0",
+  "main": "index.js",
+  "author": {
+    "name": "wendux",
+    "email": "824783146@qq.com",
+    "url": "https://github.com/wendux/"
+  },
+  "license": "MIT",
+  "description": "Javascript Initialization code of DSBridge ",
+  "keywords": [
+    "DSBridge"
+  ],
+  "respository": {
+    "type": "git",
+    "url": "https://github.com/wendux/DSBridge-Android"
+  },
+  "homepage": "https://github.com/wendux",
+  "bugs": {
+    "url": "https://github.com/wendux/DSBridge-Android/issues"
+  },
+  "devDependencies": {
+  },
+  "dependencies": {
+  }
+}

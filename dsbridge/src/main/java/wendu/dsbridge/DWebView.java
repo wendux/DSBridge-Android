@@ -3,7 +3,6 @@ package wendu.dsbridge;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
@@ -214,8 +213,6 @@ public class DWebView extends WebView {
                 }
                 return "";
             }
-            int i=0;
-
             @Keep
             @JavascriptInterface
             public void returnValue(int id, String value) {

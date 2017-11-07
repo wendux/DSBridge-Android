@@ -41,10 +41,8 @@
 <div class="btn" onclick="callAsyn_()">压力测试，连续调用2k次异步api</div>
 <div class="btn" onclick="callNever()">不调用(没有@JavascriptInterface标注)<br/>仅Android,IOS忽略此项</div>
 <div class="btn" onclick="callProgress()">多次回调 <span id='progress'></span></div>
-
 <div class="btn" onclick="alert(confirm('Press a button'))">confirm test</div>
 <div class="btn" onclick="alert(prompt('Please input user name.','你好，世界'))">prompt test</div>
-
 <div class="btn" onclick="request()">Forwarding ajax request</div>
 
 <script>
@@ -106,7 +104,6 @@
             alert(d.data)
           })
         }
-
         </script>
 </body>
 </html>

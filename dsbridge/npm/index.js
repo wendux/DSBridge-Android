@@ -36,4 +36,4 @@ function getJsBridge() {
         }
     }
 };
-dsBridge=getJsBridge();
+module.exports=getJsBridge();
