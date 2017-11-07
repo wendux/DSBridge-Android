@@ -222,12 +222,6 @@ public class DWebView extends WebView {
                     handlerMap.remove(id);
                 }
             }
-            @Keep
-            @JavascriptInterface
-            public void init(){
-                injectJs();
-            }
-
         }, BRIDGE_NAME);
 
     }
