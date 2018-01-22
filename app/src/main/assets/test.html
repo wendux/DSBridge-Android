@@ -6,13 +6,6 @@
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
     <meta name="viewport" content="width=device-width,initial-scale=0.5,user-scalable=no"/>
-    <!--映入dsbridge初始化js-->
-    <script src="https://unpkg.com/dsbridge/dist/dsbridge.js"> </script>
-
-    <!--下面是fly.js请求转发示例需要引入的脚本-->
-    <script src="https://unpkg.com/flyio/dist/fly.min.js"></script>
-    <script src="https://unpkg.com/flyio/dist/engine-wrapper.min.js"></script>
-    <script src="https://unpkg.com/flyio/dist/adapter/dsbridge.min.js"></script>
 </head>
 <style>
         .btn {
@@ -33,76 +26,146 @@
 
         </style>
 <body>
-<div class="btn" onclick="callSyn()">同步调用</div>
-<div class="btn" onclick="callAsyn()">异步调用</div>
-<div class="btn" onclick="callNoArgSyn()">无参函数同步调用</div>
-<div class="btn" onclick="callNoArgAsyn()">无参函数异步调用</div>
-<div class="btn" onclick="callAsyn_()">压力测试，连续调用2k次异步api</div>
-<div class="btn" onclick="callNever()">不调用(没有@JavascriptInterface标注)<br/>仅Android,IOS忽略此项</div>
-<div class="btn" onclick="callProgress()">多次回调 <span id='progress'></span></div>
+<div class="btn" onclick="callSync()">call sync</div>
+<div class="btn" onclick="callAsync()">call async</div>
+<div class="btn" onclick="callNoArgSync()">no arg call sync</div>
+<div class="btn" onclick="callNoArgAsync()">no arg call async</div>
+<div class="btn" onclick="callNever()">call unexist handler</div>
+<div class="btn" onclick="callProgress()">call progress <span id='progress'></span></div>
 <div class="btn" onclick="alert(confirm('Press a button'))">confirm test</div>
-<div class="btn" onclick="alert(prompt('Please input user name.','你好，世界'))">prompt test</div>
-<div class="btn" onclick="request()">Forwarding ajax request</div>
+<div class="btn" onclick="alert(prompt('Please input user name.','hello, world'))">prompt test</div>
 
 <script>
+/* BRIDGE BEGIN */
+function getJsBridge(bridgeName) {
+  var internalBridgeName = bridgeName || '_dsbridge';
+  var internalBridge = window[internalBridgeName];
+  if (!internalBridge) {
+    throw new Error('No injected global bridge object.');
+  }
 
-        console.log(dsBridge)
+  var counter = 0;
+  var jsBridge = {
+    callbackMap: {},
+    handlerMap: {},
+    callHandler: function (name, args, callback) {
+      var ret = '';
+      if (typeof args == 'function') {
+        callback = args;
+        args = {};
+      }
+      if (typeof callback == 'function') {
+        var callbackId = counter++;
+        this.callbackMap[callbackId] = callback;
+        args['_callbackId'] = callbackId;
+      }
+      args = JSON.stringify(args || {});
+      console.log('===callHandler', name, args, callback);
 
-        function callSyn() {
-           alert(dsBridge.call("testSyn", {msg: "testSyn"}))
+      // WKWebview
+      if (internalBridge.wk) {
+        ret = prompt(internalBridgeName + '=' + name, args);
+      } else {
+        ret = internalBridge.callHandler(name, args);
+      }
+      return ret;
+    },
+    registerHandler: function (name, handler) {
+      console.log('===registerHandler' + name);
+      this.handlerMap[name] = handler;
+    },
+  };
+
+  // extend internal bridge
+  internalBridge.invokeHandler = function (name, args, callbackId) {
+    console.log('===invokeHandler', name, args);
+    var handler = jsBridge.handlerMap[name];
+    if (handler.length === 2) {
+      // async handler
+      handler(args, function (ret) {
+        if (typeof callbackId === 'undefined') return;
+        if (internalBridge.wk) {
+          prompt(internalBridgeName + 'cid=' + callbackId, JSON.stringify(ret));
+        } else {
+          internalBridge.returnValue(callbackId, JSON.stringify(ret));
         }
+      });
+    } else {
+      internalBridge.returnValue(callbackId, JSON.stringify(handler(args)));
+    }
+  };
+  internalBridge.invokeCallback = function (callbackId, result, complete) {
+    console.log('===invokeCallback' + complete);
+    console.log(callbackId);
+    console.log(result);
+    console.log(typeof complete);
+    var callback = jsBridge.callbackMap[callbackId];
+    if (complete) {
+      delete jsBridge.callbackMap[callbackId];
+    }
+    callback(result);
+  };
 
-        function callAsyn() {
-            dsBridge.call("testAsyn", {msg: "testAsyn"}, function (v) {
-                  alert(v)
-            })
-        }
+  return jsBridge;
+}
+/* BRIDGE END */
 
-        function callAsyn_() {
-            for(var i=0;i<2000;i++){
-                dsBridge.call("testAsyn", {msg: "js+"+i}, function (v) {
-                    if(v=="js+1999 [ asyn call]"){
-                        alert("全部任务执行结束")
-                    }
-                 })
-            }
-        }
+// bridge demo
 
-        function callNoArgSyn() {
-            alert(dsBridge.call("testNoArgSyn"));
-        }
+var bridge = getJsBridge();
+console.log(bridge);
 
-        function callNoArgAsyn() {
-            dsBridge.call("testNoArgAsyn", function (v) {
-                alert(v)
-            });
-        }
+function callSync() {
+  alert(bridge.callHandler('testSync', { msg: 'testSync' }));
+}
 
-        function callNever() {
-            dsBridge.call("testNever", {msg: "testSyn"})
-        }
+function callAsync() {
+  alert(bridge.callHandler('testAsync', { msg: 'testAsync' }, function (ret) {
+    if (ret.error) {
+      console.error(ret.error);
+      return;
+    }
+    alert(ret.result);
+  }));
+}
 
-        function callProgress(){
-         dsBridge.call("callProgress", function (value) {
-                document.getElementById("progress").innerText=value
-          })
-        }
+function callNoArgSync() {
+  alert(bridge.callHandler('testNoArgSync'));
+}
 
-        function test(arg1,arg2){
-            return arg1+arg2;
-        }
+function callNoArgAsync() {
+  bridge.callHandler('testNoArgAsync', function (ret) {
+    if (ret.error) {
+      console.error(ret.error);
+      return;
+    }
+    alert(ret.result);
+  });
+}
 
-        dsBridge.register('addValue',function(r,l){
-         return r+l;
-        })
+function callNever() {
+  bridge.callHandler('testNever', { msg: 'testNever' });
+}
 
-      var engine = EngineWrapper(dsbAdapter)
-      fly.engine = engine;
-        function request(){
-          fly.get("https://www.baidu.com/").then(function(d){
-            alert(d.data)
-          })
-        }
-        </script>
+function callProgress(){
+  bridge.callHandler('callProgress', function (ret) {
+    if (ret.error) {
+      console.error(ret.error);
+      return;
+    }
+    document.getElementById('progress').innerText = ret.result;
+  });
+}
+
+// sync handler
+bridge.registerHandler('addValue', function (args) {
+  return args[0] + args[1];
+});
+
+// async handler
+bridge.registerHandler('addValueAsync', function (args, callback) {
+  callback(args[0] + args[1]);
+});
+</script>
 </body>
 </html>
