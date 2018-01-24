@@ -57,7 +57,7 @@ public class DWebView extends WebView {
     private static final String LOG_TAG = "dsBridge";
     private static boolean isDebug = false;
     private List javaScriptInterfaces = new ArrayList();
-    private String APP_CACAHE_DIRNAME;
+    private String APP_CACHE_DIRNAME;
     int callID = 0;
     private static final int EXEC_SCRIPT = 1;
     private static final int LOAD_URL = 2;
@@ -130,23 +130,20 @@ public class DWebView extends WebView {
     @Keep
     void init() {
         mainThreadHandler = new MyHandler((Activity) getContext());
-        APP_CACAHE_DIRNAME = getContext().getFilesDir().getAbsolutePath() + "/webcache";
+        APP_CACHE_DIRNAME = getContext().getFilesDir().getAbsolutePath() + "/webcache";
         WebSettings settings = getSettings();
         settings.setDomStorageEnabled(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             CookieManager.getInstance().setAcceptThirdPartyCookies(this, true);
+            settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         }
         settings.setAllowFileAccess(false);
         settings.setAppCacheEnabled(false);
-        settings.setSavePassword(false);
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         settings.setJavaScriptEnabled(true);
         settings.setLoadWithOverviewMode(true);
         settings.setSupportMultipleWindows(true);
-        settings.setAppCachePath(APP_CACAHE_DIRNAME);
-        if (Build.VERSION.SDK_INT >= 21) {
-            settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        }
+        settings.setAppCachePath(APP_CACHE_DIRNAME);
         settings.setUseWideViewPort(true);
         super.setWebChromeClient(mWebChromeClient);
         addInternalJavascriptObject();
@@ -170,11 +167,13 @@ public class DWebView extends WebView {
                 }
                 JSONObject arg;
                 Method method = null;
-                String callback;
+                String callback=null;
                 try {
                     arg = new JSONObject(args);
-                    callback = arg.getString("_dscbstub");
-                    arg.remove("_dscbstub");
+                    if(arg.has("_dscbstub")) {
+                        callback = arg.getString("_dscbstub");
+                        arg.remove("_dscbstub");
+                    }
                 } catch (JSONException e) {
                     error = String.format("The argument of \"%s\" must be a JSON object string!", methodName);
                     PrintDebugInfo(error);
@@ -228,11 +227,13 @@ public class DWebView extends WebView {
                                     try {
                                         if (retValue == null) retValue = "";
                                         retValue = URLEncoder.encode(retValue, "UTF-8").replaceAll("\\+", "%20");
-                                        String script = String.format("%s(decodeURIComponent(\"%s\"));", cb, retValue);
-                                        if (complete) {
-                                            script += "delete window." + cb;
+                                        if(cb!=null) {
+                                            String script = String.format("%s(decodeURIComponent(\"%s\"));", cb, retValue);
+                                            if (complete) {
+                                                script += "delete window." + cb;
+                                            }
+                                            evaluateJavascript(script);
                                         }
-                                        evaluateJavascript(script);
                                     } catch (UnsupportedEncodingException e) {
                                         e.printStackTrace();
                                     }
@@ -738,7 +739,7 @@ public class DWebView extends WebView {
             e.printStackTrace();
         }
 
-        File appCacheDir = new File(APP_CACAHE_DIRNAME);
+        File appCacheDir = new File(APP_CACHE_DIRNAME);
         File webviewCacheDir = new File(context.getCacheDir()
                 .getAbsolutePath() + "/webviewCache");
 
