@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
         webView.setJavascriptInterface(new JsApi());
         webView.clearCache(true);
         //webView.loadUrl("http://10.99.1.175:63341/Fly/demon/dsbridge.html");
-        webView.loadUrl("file:///android_asset/test.html");
+
         webView.setWebViewClient(new WebViewClient(){
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -30,10 +30,12 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("jsbridge","call succeed,return value is "+retValue);
                     }
                 });
-
                // webView.callHandler("test",null);
             }
         });
+
+        webView.loadUrl("file:///android_asset/test.html");
+
 
     }
 }
