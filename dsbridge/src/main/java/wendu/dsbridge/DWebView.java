@@ -169,22 +169,23 @@ public class DWebView extends WebView {
                     return "";
                 }
                 JSONObject arg;
+                Method method = null;
+                String callback;
                 try {
                     arg = new JSONObject(args);
+                    callback = arg.getString("_dscbstub");
+                    arg.remove("_dscbstub");
                 } catch (JSONException e) {
                     error = String.format("The argument of \"%s\" must be a JSON object string!", methodName);
                     PrintDebugInfo(error);
                     e.printStackTrace();
                     return "";
                 }
-                Method method = null;
+
                 for (Object jsb : javaScriptInterfaces) {
                     Class<?> cls = jsb.getClass();
                     boolean asyn = false;
-                    String callback = "";
                     try {
-                        callback = arg.getString("_dscbstub");
-                        arg.remove("_dscbstub");
                         method = cls.getDeclaredMethod(methodName,
                                 new Class[]{JSONObject.class, CompletionHandler.class});
                         asyn = true;
