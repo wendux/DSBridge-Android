@@ -15,10 +15,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // set debug model
         final DWebView webView= (DWebView) findViewById(R.id.webview);
-        webView.setJavascriptInterface(new JsApi());
+        DWebView.setWebContentsDebuggingEnabled(true);
+        webView.addJavascriptObject(new JsApi());
         webView.clearCache(true);
-        //webView.loadUrl("http://10.99.1.175:63341/Fly/demon/dsbridge.html");
+        webView.loadUrl("");
         webView.setWebViewClient(new WebViewClient(){
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -40,9 +42,6 @@ public class MainActivity extends AppCompatActivity {
                // webView.callHandler("test",null);
             }
         });
-
-        // set debug model
-        DWebView.setWebContentsDebuggingEnabled(true);
 
         webView.loadUrl("file:///android_asset/test.html");
 

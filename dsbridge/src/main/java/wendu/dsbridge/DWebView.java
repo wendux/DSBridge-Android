@@ -1,5 +1,4 @@
 package wendu.dsbridge;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
@@ -308,6 +307,11 @@ public class DWebView extends WebView {
         }
     }
 
+    /**
+     * This method can be called in any thread, and if it is not called in the main thread,
+     * it will be automatically distributed to the main thread.
+     * @param script
+     */
     public void evaluateJavascript(final String script) {
         if (Looper.getMainLooper() == Looper.myLooper()) {
             _evaluateJavascript(script);
@@ -319,6 +323,11 @@ public class DWebView extends WebView {
         }
     }
 
+    /**
+     * This method can be called in any thread, and if it is not called in the main thread,
+     * it will be automatically distributed to the main thread.
+     * @param url
+     */
     @Override
     public void loadUrl(String url) {
         Message msg = new Message();
@@ -327,6 +336,12 @@ public class DWebView extends WebView {
         mainThreadHandler.sendMessage(msg);
     }
 
+    /**
+     * This method can be called in any thread, and if it is not called in the main thread,
+     * it will be automatically distributed to the main thread.
+     * @param url
+     * @param additionalHttpHeaders
+     */
     @Override
     public void loadUrl(String url, Map<String, String> additionalHttpHeaders) {
         Message msg = new Message();
