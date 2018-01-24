@@ -19,7 +19,6 @@ public class MainActivity extends AppCompatActivity {
         webView.setJavascriptInterface(new JsApi());
         webView.clearCache(true);
         //webView.loadUrl("http://10.99.1.175:63341/Fly/demon/dsbridge.html");
-        webView.loadUrl("file:///android_asset/test.html");
         webView.setWebViewClient(new WebViewClient(){
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -31,9 +30,21 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+                webView.hasJavascriptMethod("addValue", new DWebView.MethodExistCallback() {
+                    @Override
+                    public void onResult(boolean exist) {
+                        Log.d("jsbridge", "method exist:" + exist);
+                    }
+                });
+
                // webView.callHandler("test",null);
             }
         });
+
+        // set debug model
+        DWebView.setWebContentsDebuggingEnabled(true);
+
+        webView.loadUrl("file:///android_asset/test.html");
 
     }
 }

@@ -1,6 +1,5 @@
-function getJsBridge() {
-    window._dsf=window._dsf||{};
-    return {
+window._dsf=window._dsf||{};
+var bridge={
         call: function (method, args, cb) {
             var ret = '';
             if (typeof args == 'function') {
@@ -33,7 +32,14 @@ function getJsBridge() {
             }else {
                 window._dsf[name] = fun;
             }
+        },
+        hasNativeMethod:function(name){
+          return this.call("hasNativeMethod",{"name":name})=='1';
         }
-    }
-};
-module.exports=getJsBridge();
+ }
+
+bridge.register("hasJavascriptMethod",function(name){
+    return !!window._dsf[name]
+})
+
+module.exports=bridge;
