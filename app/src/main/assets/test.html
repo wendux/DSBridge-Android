@@ -15,7 +15,7 @@
     <script src="https://unpkg.com/flyio/dist/adapter/dsbridge.min.js"></script>
 </head>
 <style>
-        .btn {
+    .btn {
             text-align: center;
             background: dodgerblue;
             color: white;
@@ -24,27 +24,28 @@
             font-size: 24px;
             border-radius: 4px;
             box-shadow: 4px 2px 10px #999;
-        }
+    }
 
     .btn:active {
         opacity: .7;
         box-shadow: 4px 2px 10px #555;
     }
 
-        </style>
+ </style>
 <body>
-<div class="btn" onclick="callSyn()">同步调用</div>
-<div class="btn" onclick="callAsyn()">异步调用</div>
-<div class="btn" onclick="callNoArgSyn()">无参函数同步调用</div>
-<div class="btn" onclick="callNoArgAsyn()">无参函数异步调用</div>
-<div class="btn" onclick="callAsyn_()">压力测试，连续调用2k次异步api</div>
-<div class="btn" onclick="callNever()">不调用(没有@JavascriptInterface标注)<br/>仅Android,IOS忽略此项</div>
-<div class="btn" onclick="callProgress()">多次回调 <span id='progress'></span></div>
+<div class="btn" onclick="callSyn()">Synchronous call</div>
+<div class="btn" onclick="callAsyn()">Asynchronous call</div>
+<div class="btn" onclick="callNoArgSyn()">Sync call without argument</div>
+<div class="btn" onclick="callNoArgAsyn()">Async call without argument</div>
+<div class="btn" onclick="callAsyn_()">Stress test，2K times consecutive asynchronous API calls</div>
+<div class="btn" onclick="callNever()">Never call because without @JavascriptInterface annotation<br/>( This  test is just for Android ,should be ignored in IOS ) </div>
+<div class="btn" onclick="callProgress()">call progress <span id='progress'></span></div>
 <div class="btn" onclick="alert(confirm('Press a button'))">confirm test</div>
-<div class="btn" onclick="alert(prompt('Please input user name.','你好，世界'))">prompt test</div>
+<div class="btn" onclick="alert(prompt('Please input user name.','hello world'))">prompt test</div>
 <div class="btn" onclick="hasNativeMethod('xx')">hasNativeMethod("xx")</div>
 <div class="btn" onclick="hasNativeMethod('testSyn')">hasNativeMethod("testSyn")</div>
 <div class="btn" onclick="request()">Forwarding ajax request</div>
+<div class="btn" onclick="window.close()">Close window</div>
 
 <script>
 
@@ -84,13 +85,19 @@ var bridge={
             }
         },
         hasNativeMethod:function(name){
-          return this.call("hasNativeMethod",{"name":name})=='1';
+          return this.call("_hasNativeMethod",{"name":name})=='1';
         }
  }
 
-bridge.register("hasJavascriptMethod",function(name){
+bridge.register("_hasJavascriptMethod",function(name){
     return !!window._dsf[name]
 })
+
+window.close=function(){
+ bridge.call("_closePage")
+}
+//module.exports=bridge;
+
 window.dsBridge=bridge;
 
 
@@ -110,7 +117,7 @@ window.dsBridge=bridge;
             for(var i=0;i<2000;i++){
                 dsBridge.call("testAsyn", {msg: "js+"+i}, function (v) {
                     if(v=="js+1999 [ asyn call]"){
-                        alert("全部任务执行结束")
+                        alert("All tasks completed!")
                     }
                  })
             }
@@ -150,11 +157,11 @@ window.dsBridge=bridge;
 
       var engine = EngineWrapper(dsbAdapter)
       fly.engine = engine;
-        function request(){
+      function request(){
           fly.get("https://www.baidu.com/").then(function(d){
             alert(d.data)
           })
-        }
-        </script>
+       }
+      </script>
 </body>
 </html>

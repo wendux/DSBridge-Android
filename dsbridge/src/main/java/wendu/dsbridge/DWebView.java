@@ -62,8 +62,11 @@ public class DWebView extends WebView {
     private static final int EXEC_SCRIPT = 1;
     private static final int LOAD_URL = 2;
     private static final int LOAD_URL_WITH_HEADERS = 3;
+    private static final int JS_CLOSE_WINDOW = 4;
     WebChromeClient webChromeClient;
     MyHandler mainThreadHandler = null;
+    private boolean alertboxBlock=true;
+    private JavascriptCloseWindowListener javascriptCloseWindowListener=null;
 
     class MyHandler extends Handler {
         //  Using WeakReference to avoid memory leak
@@ -89,6 +92,13 @@ public class DWebView extends WebView {
                         DWebView.super.loadUrl(info.url, info.headers);
                     }
                     break;
+                    case JS_CLOSE_WINDOW:{
+                        if(javascriptCloseWindowListener==null
+                                ||javascriptCloseWindowListener.onClose()){
+                            ((Activity) getContext()).onBackPressed();
+                        }
+                    }
+                    break;
                 }
             }
         }
@@ -108,6 +118,13 @@ public class DWebView extends WebView {
 
     public interface MethodExistCallback{
         void onResult(boolean exist);
+    }
+
+    public interface JavascriptCloseWindowListener {
+        /**
+         * @return  If true, close the current activity, otherwise, do nothing.
+         */
+        boolean onClose();
     }
 
     public DWebView(Context context, AttributeSet attrs) {
@@ -281,7 +298,7 @@ public class DWebView extends WebView {
         addJavascriptObject(new Object(){
             @Keep
             @JavascriptInterface
-            public String hasNativeMethod(JSONObject jsonObject) throws JSONException {
+            public String _hasNativeMethod(JSONObject jsonObject) throws JSONException {
                 String methodName=jsonObject.getString("name");
                 for (Object jsb : javaScriptInterfaces) {
                     Class<?> cls = jsb.getClass();
@@ -297,6 +314,22 @@ public class DWebView extends WebView {
                     }
                 }
                 return "0";
+            }
+
+            @Keep
+            @JavascriptInterface
+            public String _closePage(JSONObject jsonObject) throws JSONException{
+                    Message msg = new Message();
+                    msg.what = JS_CLOSE_WINDOW;
+                    mainThreadHandler.sendMessage(msg);
+                    return null;
+            }
+
+            @Keep
+            @JavascriptInterface
+            public String _disableJavascriptAlertBoxSafetyTimeout(JSONObject jsonObject)throws JSONException{
+                alertboxBlock=jsonObject.getBoolean("disable");
+                return null;
             }
         });
     }
@@ -352,6 +385,13 @@ public class DWebView extends WebView {
         mainThreadHandler.sendMessage(msg);
     }
 
+    /**
+     * set a listener for javascript closing the current activity.
+     */
+    public void setJavascriptCloseWindowListener( JavascriptCloseWindowListener listener){
+        javascriptCloseWindowListener=listener;
+    }
+
     public void callHandler(String method, Object[] args) {
         callHandler(method, args, null);
     }
@@ -369,7 +409,7 @@ public class DWebView extends WebView {
     }
 
     public void hasJavascriptMethod(String handlerName, final MethodExistCallback existCallback){
-        callHandler("hasJavascriptMethod", new Object[]{handlerName}, new OnReturnValue() {
+        callHandler("_hasJavascriptMethod", new Object[]{handlerName}, new OnReturnValue() {
             @Override
             public void onValue(String retValue) {
                existCallback.onResult(retValue.equals("true"));
@@ -401,6 +441,10 @@ public class DWebView extends WebView {
      */
     public void removeInterfaceObject(Object object) {
         javaScriptInterfaces.remove(object);
+    }
+
+    public void disableJavascriptAlertBoxSafetyTimeout(boolean disable){
+        alertboxBlock=!disable;
     }
 
     @Override
@@ -504,6 +548,9 @@ public class DWebView extends WebView {
 
         @Override
         public boolean onJsAlert(WebView view, String url, final String message, final JsResult result) {
+            if(!alertboxBlock){
+                result.confirm();
+            }
             if (webChromeClient != null) {
                 if (webChromeClient.onJsAlert(view, url, message, result)) {
                     return true;
@@ -516,7 +563,9 @@ public class DWebView extends WebView {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
-                            result.confirm();
+                            if(alertboxBlock) {
+                                result.confirm();
+                            }
                         }
                     })
                     .create();
@@ -527,16 +576,21 @@ public class DWebView extends WebView {
         @Override
         public boolean onJsConfirm(WebView view, String url, String message,
                                    final JsResult result) {
+            if(!alertboxBlock){
+                result.confirm();
+            }
             if (webChromeClient != null && webChromeClient.onJsConfirm(view, url, message, result)) {
                 return true;
             } else {
                 DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (which == Dialog.BUTTON_POSITIVE) {
-                            result.confirm();
-                        } else {
-                            result.cancel();
+                        if(alertboxBlock) {
+                            if (which == Dialog.BUTTON_POSITIVE) {
+                                result.confirm();
+                            } else {
+                                result.cancel();
+                            }
                         }
                     }
                 };
@@ -554,7 +608,10 @@ public class DWebView extends WebView {
         @Override
         public boolean onJsPrompt(WebView view, String url, final String message,
                                   String defaultValue, final JsPromptResult result) {
-            super.onJsPrompt(view, url, message, defaultValue, result);
+            if(!alertboxBlock){
+                result.confirm();
+            }
+
             if (webChromeClient != null && webChromeClient.onJsPrompt(view, url, message, defaultValue, result)) {
                 return true;
             } else {
@@ -567,10 +624,12 @@ public class DWebView extends WebView {
                 DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (which == Dialog.BUTTON_POSITIVE) {
-                            result.confirm(editText.getText().toString());
-                        } else {
-                            result.cancel();
+                        if(alertboxBlock) {
+                            if (which == Dialog.BUTTON_POSITIVE) {
+                                result.confirm(editText.getText().toString());
+                            } else {
+                                result.cancel();
+                            }
                         }
                     }
                 };

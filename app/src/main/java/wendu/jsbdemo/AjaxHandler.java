@@ -1,12 +1,16 @@
 package wendu.jsbdemo;
+
 import android.util.Base64;
+
 import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -20,7 +24,6 @@ import wendu.dsbridge.CompletionHandler;
  * Created by du on 2017/10/31.
  *
  * This class handles the Ajax requests forwarded by fly.js in WebView
- *
  * More about fly.js see https://github.com/wendux/fly
  */
 

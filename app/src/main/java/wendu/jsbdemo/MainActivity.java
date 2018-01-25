@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
                // webView.callHandler("test",null);
             }
+
         });
 
         webView.loadUrl("file:///android_asset/test.html");

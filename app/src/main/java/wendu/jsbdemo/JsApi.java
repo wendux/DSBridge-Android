@@ -53,7 +53,7 @@ public class JsApi{
             @Override
             public void onFinish() {
                 //complete the js invocation with data; handler will expire when complete is called
-                handler.complete("");
+                handler.complete();
 
             }
         }.start();
@@ -64,7 +64,7 @@ public class JsApi{
      * @param requestData
      * @param handler
      *
-     * Note: This api is for Fly.js
+     * Note: This method is for Fly.js
      * In browsers, Ajax requests are sent by browsers, and Fly can
      * redirect requests to native, more about Fly see  https://github.com/wendux/fly
      */

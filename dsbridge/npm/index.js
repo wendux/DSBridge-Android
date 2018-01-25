@@ -34,12 +34,19 @@ var bridge={
             }
         },
         hasNativeMethod:function(name){
-          return this.call("hasNativeMethod",{"name":name})=='1';
-        }
- }
+          return this.call("_hasNativeMethod",{"name":name})=='1';
+        },
+        disableJavascriptAlertBoxSafetyTimeout: function (disable) {
+             this.call("_disableJavascriptAlertBoxSafetyTimeout", {disable:disable !== false})
+        },
+  }
 
-bridge.register("hasJavascriptMethod",function(name){
+    bridge.register("_hasJavascriptMethod",function(name){
     return !!window._dsf[name]
-})
+    })
+
+    window.close=function(){
+        bridge.call("_closePage")
+    }
 
 module.exports=bridge;
