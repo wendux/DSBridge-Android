@@ -38,6 +38,8 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
    }
    ```
 
+> NOTICE: the master branch is preview, you should use the 2.0.x version 
+
 ## Usage
 
 1. Implement apis in Java
@@ -75,9 +77,11 @@ DSBridge-Android:https://github.com/wendux/DSBridge-Android
 
      ```javascript
      //cdn
-     //<script src="https://unpkg.com/dsbridge/dist/dsbridge.js"> </script>
+     //For master <script src="https://unpkg.com/dsbridge/dist/dsbridge.js"> </script>
+     //For 2.0.0<script src="https://unpkg.com/dsbridge@2.0.0/dist/dsbridge.js"> </script>
      //npm
-     //npm install dsbridge
+     //For master: npm install dsbridge
+     //For 2.0.0: npm install dsbridge@2.0.0
      var dsBridge=require("dsbridge")
      ```
 
