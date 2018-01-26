@@ -226,8 +226,7 @@ void loadUrl(final String url, Map<String, String> additionalHttpHeaders)
 void evaluateJavascript(String script) 
 ```
 
-DWebview已经实现 alert、prompt、comfirm对话框，您可以不做处理，也可以自定义。值得一提的是js 在调用alert函数正常情况下只要用户没有关闭alert对话框，js代码是会阻塞的，但是考虑到alert 对话框只有一个确定按钮，也就是说无论用户关闭还是确定都不会影响js代码流程，所以DWebview中在弹出alert对话框时会先给js返回，这样一来js就可以继续执行，而提示框等用户关闭时在关闭即可。如果你就是想要阻塞的alert，可以自定义。而DWebview的prompt、comfirm实现完全符合ecma标准，都是阻塞的。
-
+DWebview已经实现 alert、prompt、comfirm对话框，您可以不做处理，也可以自定义。
 ## 最后
 
 如果你喜欢，欢迎star！
