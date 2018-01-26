@@ -6,9 +6,8 @@
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
     <meta name="viewport" content="width=device-width,initial-scale=0.5,user-scalable=no"/>
-    <!--映入dsbridge初始化js-->
+    <!--require dsbridge init js-->
     <script src="https://unpkg.com/dsbridge/dist/dsbridge.js"> </script>
-
     <!--下面是fly.js请求转发示例需要引入的脚本-->
     <script src="https://unpkg.com/flyio/dist/fly.min.js"></script>
     <script src="https://unpkg.com/flyio/dist/engine-wrapper.min.js"></script>
@@ -49,62 +48,9 @@
 
 <script>
 
-window._dsf=window._dsf||{};
-var bridge={
-        call: function (method, args, cb) {
-            var ret = '';
-            if (typeof args == 'function') {
-                cb = args;
-                args = {};
-            }
-            if (typeof cb == 'function') {
-                window.dscb = window.dscb || 0;
-                var cbName = 'dscb' + window.dscb++;
-                window[cbName] = cb;
-                args['_dscbstub'] = cbName;
-            }
-            args = JSON.stringify(args || {})
-
-            if (window._dswk) {
-                ret = prompt(window._dswk + method, args);
-            } else {
-                if (typeof _dsbridge == 'function') {
-                    ret = _dsbridge(method, args);
-
-                } else {
-                    ret = _dsbridge.call(method, args);
-                }
-            }
-            return ret;
-        },
-        register:function(name,fun){
-            if(typeof name=="object"){
-                Object.assign(window._dsf,name)
-            }else {
-                window._dsf[name] = fun;
-            }
-        },
-        hasNativeMethod:function(name){
-          return this.call("_hasNativeMethod",{"name":name})=='1';
-        }
- }
-
-bridge.register("_hasJavascriptMethod",function(name){
-    return !!window._dsf[name]
-})
-
-window.close=function(){
- bridge.call("_closePage")
-}
-//module.exports=bridge;
-
-window.dsBridge=bridge;
-
-
-        console.log(dsBridge)
 
         function callSyn() {
-           alert(dsBridge.call("testSyn", {msg: "testSyn"}))
+           alert(dsBridge.call("test.testSyn", {msg: "testSyn"}))
         }
 
         function callAsyn() {
@@ -154,6 +100,38 @@ window.dsBridge=bridge;
         dsBridge.register('addValue',function(r,l){
          return r+l;
         })
+
+        dsBridge.registerAsyn('append',function(arg1,arg2,arg3,responseCallback){
+          responseCallback(arg1+" "+arg2+" "+arg3);
+        })
+
+         dsBridge.registerAsyn('startTimer',function(responseCallback){
+          var t=0;
+          var timer=setInterval(function(){
+           if(t==5){
+            responseCallback(t)
+            clearInterval(timer)
+           }else{
+            // if the 2nd argument is false,  the java callback handler will be not removed!
+            responseCallback(t++,false)
+           }
+          },1000)
+
+        })
+
+
+        // namespace test
+        dsBridge.register("test",{
+         tag:"test",
+         test1:function(){
+           return this.tag+"1"
+         },
+         test2:function(){
+           return this.tag+"2"
+         }
+        })
+
+
 
       var engine = EngineWrapper(dsbAdapter)
       fly.engine = engine;
