@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
         DWebView.setWebContentsDebuggingEnabled(true);
 
         webView.addJavascriptObject(new JsApi());
-        webView.setJavascriptObjectWithNamespace(new JsApi(),"test");
+        webView.addJavascriptObject(new JsApi(),"test");
 
         webView.loadUrl("file:///android_asset/test.html");
 

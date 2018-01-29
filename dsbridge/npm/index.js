@@ -29,7 +29,7 @@ var bridge = {
         if (!window._initCalled) {
             window._initCalled = true;
             setTimeout(function () {
-                bridge.call("_init");
+                bridge.call("_dsb.init");
             }, 0)
         }
         if (typeof fun == "object") {
@@ -42,18 +42,18 @@ var bridge = {
         this.register(name, fun, true);
     },
     hasNativeMethod: function (name) {
-        return this.call("_hasNativeMethod", {
+        return this.call("_dsb.hasNativeMethod", {
             "name": name
         }) == '1';
     },
     disableJavascriptAlertBoxSafetyTimeout: function (disable) {
-        this.call("_disableJavascriptAlertBoxSafetyTimeout", {
+        this.call("_dsb.disableJavascriptAlertBoxSafetyTimeout", {
             disable: disable !== false
         })
     }
 };
 
-! function () {
+!function () {
     if (window._dsf) return;
     var ob = {
         _dsf: {
@@ -65,7 +65,7 @@ var bridge = {
         dscb: 0,
         dsBridge: bridge,
         close: function () {
-            bridge.call("_closePage")
+            bridge.call("_dsb.closePage")
         },
         _handleMessageFromJava: function (info) {
             var arg = JSON.parse(info.data);
@@ -77,13 +77,13 @@ var bridge = {
             var af = this._dsaf[info.method]
             var callSyn = function (f, ob) {
                 ret.data = f.apply(ob, arg) || ""
-                bridge.call("_returnValue", ret)
+                bridge.call("_dsb.returnValue", ret)
             }
             var callAsyn = function (f, ob) {
                 arg.push(function (data, complete) {
                     ret.data = data;
                     ret.complete = !!complete;
-                    bridge.call("_returnValue", ret)
+                    bridge.call("_dsb.returnValue", ret)
                 })
                 f.apply(ob, arg)
             }

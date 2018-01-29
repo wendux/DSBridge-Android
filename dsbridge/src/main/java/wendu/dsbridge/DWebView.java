@@ -1,4 +1,5 @@
 package wendu.dsbridge;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
@@ -44,7 +45,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -56,8 +56,7 @@ public class DWebView extends WebView {
     private static final String BRIDGE_NAME = "_dsbridge";
     private static final String LOG_TAG = "dsBridge";
     private static boolean isDebug = false;
-    private List javaScriptInterfaces = new ArrayList();
-    private Map<String,Object> javaScriptNamespaceInterfaces=new HashMap();
+    private Map<String, Object> javaScriptNamespaceInterfaces = new HashMap();
     private String APP_CACHE_DIRNAME;
     int callID = 0;
     private static final int EXEC_SCRIPT = 1;
@@ -67,8 +66,8 @@ public class DWebView extends WebView {
     private static final int JS_RETURN_VALUE = 5;
     WebChromeClient webChromeClient;
     MyHandler mainThreadHandler = null;
-    private volatile boolean alertboxBlock=true;
-    private JavascriptCloseWindowListener javascriptCloseWindowListener=null;
+    private volatile boolean alertboxBlock = true;
+    private JavascriptCloseWindowListener javascriptCloseWindowListener = null;
 
     class MyHandler extends Handler {
         //  Using WeakReference to avoid memory leak
@@ -94,20 +93,20 @@ public class DWebView extends WebView {
                         DWebView.super.loadUrl(info.url, info.headers);
                     }
                     break;
-                    case JS_CLOSE_WINDOW:{
-                        if(javascriptCloseWindowListener==null
-                                ||javascriptCloseWindowListener.onClose()){
+                    case JS_CLOSE_WINDOW: {
+                        if (javascriptCloseWindowListener == null
+                                || javascriptCloseWindowListener.onClose()) {
                             ((Activity) getContext()).onBackPressed();
                         }
                     }
                     break;
-                    case JS_RETURN_VALUE:{
-                        int id=msg.arg1;
-                        String value= (String) msg.obj;
+                    case JS_RETURN_VALUE: {
+                        int id = msg.arg1;
+                        String value = (String) msg.obj;
                         OnReturnValue handler = handlerMap.get(id);
                         if (handler != null) {
                             handler.onValue(value);
-                            if(msg.arg2==1) {
+                            if (msg.arg2 == 1) {
                                 handlerMap.remove(id);
                             }
                         }
@@ -130,13 +129,13 @@ public class DWebView extends WebView {
 
     Map<Integer, OnReturnValue> handlerMap = new HashMap<>();
 
-    public interface MethodExistCallback{
+    public interface MethodExistCallback {
         void onResult(boolean exist);
     }
 
     public interface JavascriptCloseWindowListener {
         /**
-         * @return  If true, close the current activity, otherwise, do nothing.
+         * @return If true, close the current activity, otherwise, do nothing.
          */
         boolean onClose();
     }
@@ -183,7 +182,7 @@ public class DWebView extends WebView {
             private void PrintDebugInfo(String error) {
                 Log.d(LOG_TAG, error);
                 if (isDebug) {
-                    evaluateJavascript(String.format("alert('%s')", "DEBUG ERR MSG:\\n"+error.replaceAll("\\'","\\\\'")));
+                    evaluateJavascript(String.format("alert('%s')", "DEBUG ERR MSG:\\n" + error.replaceAll("\\'", "\\\\'")));
                 }
             }
 
@@ -192,23 +191,19 @@ public class DWebView extends WebView {
             public String call(String methodName, String args) {
                 String error = "Js bridge  called, but can't find a corresponded " +
                         "JavascriptInterface object , please check your code!";
-                int pos=methodName.lastIndexOf('.');
-                boolean isNamespaceMethod= pos!=-1;
-                String namespace="";
-                if (isNamespaceMethod){
-                    namespace=methodName.substring(0,pos);
-                }
-                if((isNamespaceMethod&&javaScriptNamespaceInterfaces.get(namespace)==null)
-                        ||javaScriptInterfaces.isEmpty()){
+                String[] nameStr = parseNamespace(methodName);
+                methodName=nameStr[1];
+                Object jsb=javaScriptNamespaceInterfaces.get(nameStr[0]);
+                if (jsb == null) {
                     PrintDebugInfo(error);
                     return "";
                 }
                 JSONObject arg;
                 Method method = null;
-                String callback=null;
+                String callback = null;
                 try {
                     arg = new JSONObject(args);
-                    if(arg.has("_dscbstub")) {
+                    if (arg.has("_dscbstub")) {
                         callback = arg.getString("_dscbstub");
                         arg.remove("_dscbstub");
                     }
@@ -219,119 +214,120 @@ public class DWebView extends WebView {
                     return "";
                 }
 
-                List jsbs = javaScriptInterfaces;
 
-                if(isNamespaceMethod){
-                    Object ob=javaScriptNamespaceInterfaces.get(namespace);
-                    if(ob!=null){
-                        jsbs=new ArrayList();
-                        jsbs.add(ob);
-                        methodName=methodName.substring(pos+1);
+                Class<?> cls = jsb.getClass();
+                boolean asyn = false;
+                try {
+                    method = cls.getDeclaredMethod(methodName,
+                            new Class[]{JSONObject.class, CompletionHandler.class});
+                    asyn = true;
+                } catch (Exception e) {
+                    try {
+                        method = cls.getDeclaredMethod(methodName, new Class[]{JSONObject.class});
+                    } catch (Exception ex) {
+
                     }
                 }
 
-                for (Object jsb : jsbs) {
-                    Class<?> cls = jsb.getClass();
-                    boolean asyn = false;
-                    try {
-                        method = cls.getDeclaredMethod(methodName,
-                                new Class[]{JSONObject.class, CompletionHandler.class});
-                        asyn = true;
-                    } catch (Exception e) {
-                        try {
-                            method = cls.getDeclaredMethod(methodName, new Class[]{JSONObject.class});
-                        } catch (Exception ex) {
-                            continue;
-                        }
-                    }
-
-                    JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
-                    if (annotation == null) {
-                        continue;
-                    }
-
-                    Object ret = null;
-                    method.setAccessible(true);
-                    try {
-                        if (asyn) {
-                            final String cb = callback;
-                            ret = method.invoke(jsb, arg, new CompletionHandler() {
-
-                                @Override
-                                public void complete(String retValue) {
-                                    complete(retValue, true);
-                                }
-
-                                @Override
-                                public void complete() {
-                                    complete("", true);
-                                }
-
-                                @Override
-                                public void setProgressData(String value) {
-                                    complete(value, false);
-                                }
-
-                                private void complete(String retValue, boolean complete) {
-                                    try {
-                                        if (retValue == null) retValue = "";
-                                        retValue = URLEncoder.encode(retValue, "UTF-8").replaceAll("\\+", "%20");
-                                        if(cb!=null) {
-                                            String script = String.format("%s(decodeURIComponent(\"%s\"));", cb, retValue);
-                                            if (complete) {
-                                                script += "delete window." + cb;
-                                            }
-                                            evaluateJavascript(script);
-                                        }
-                                    } catch (UnsupportedEncodingException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                        } else {
-                            ret = method.invoke(jsb, arg);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        error = String.format("Call failed：The parameter of \"%s\" in Java is invalid.", methodName);
-                        PrintDebugInfo(error);
-                    }
-                    if (ret == null) {
-                        ret = "";
-                    }
-                    return ret.toString();
-                }
-
-                if (method == null) {
+                if(method==null){
                     error = "Not find method \"" + methodName + "\" implementation! please check if the  signature or namespace of the method is right ";
-                } else {
+                    PrintDebugInfo(error);
+                    return "";
+                }
+
+                JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
+                if (annotation == null) {
                     error = "Method " + methodName + " is not invoked, since  " +
                             "it is not declared with JavascriptInterface annotation! ";
+                    PrintDebugInfo(error);
+                    return "";
                 }
-                PrintDebugInfo(error);
-                return "";
+
+                Object ret = null;
+                method.setAccessible(true);
+                try {
+                    if (asyn) {
+                        final String cb = callback;
+                        ret = method.invoke(jsb, arg, new CompletionHandler() {
+
+                            @Override
+                            public void complete(String retValue) {
+                                complete(retValue, true);
+                            }
+
+                            @Override
+                            public void complete() {
+                                complete("", true);
+                            }
+
+                            @Override
+                            public void setProgressData(String value) {
+                                complete(value, false);
+                            }
+
+                            private void complete(String retValue, boolean complete) {
+                                try {
+                                    if (retValue == null) retValue = "";
+                                    retValue = URLEncoder.encode(retValue, "UTF-8").replaceAll("\\+", "%20");
+                                    if (cb != null) {
+                                        String script = String.format("%s(decodeURIComponent(\"%s\"));", cb, retValue);
+                                        if (complete) {
+                                            script += "delete window." + cb;
+                                        }
+                                        evaluateJavascript(script);
+                                    }
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    } else {
+                        ret = method.invoke(jsb, arg);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    error = String.format("Call failed：The parameter of \"%s\" in Java is invalid.", methodName);
+                    PrintDebugInfo(error);
+                }
+                if (ret == null) {
+                    ret = "";
+                }
+                return ret.toString();
             }
 
         }, BRIDGE_NAME);
 
     }
 
+    private String[] parseNamespace(String method) {
+        int pos = method.lastIndexOf('.');
+        String namespace = "";
+        if (pos != -1) {
+            namespace = method.substring(0, pos);
+            method = method.substring(pos + 1);
+        }
+        return new String[]{namespace, method};
+    }
+
     @Keep
-    private void addInternalJavascriptObject(){
-        addJavascriptObject(new Object(){
+    private void addInternalJavascriptObject() {
+        addJavascriptObject(new Object() {
+
             @Keep
             @JavascriptInterface
-            public String _hasNativeMethod(JSONObject jsonObject) throws JSONException {
-                String methodName=jsonObject.getString("name");
-                for (Object jsb : javaScriptInterfaces) {
+            public String hasNativeMethod(JSONObject jsonObject) throws JSONException {
+                String methodName = jsonObject.getString("name");
+                String[] nameStr = parseNamespace(methodName);
+                Object jsb = javaScriptNamespaceInterfaces.get(nameStr[0]);
+                if (jsb != null) {
                     Class<?> cls = jsb.getClass();
-                    Method[] methods=cls.getDeclaredMethods();
-                    for(Method m : methods){
-                        Log.d(LOG_TAG,m.getName());
-                        if(m.getName().equals(methodName)){
+                    Method[] methods = cls.getDeclaredMethods();
+                    for (Method m : methods) {
+                        Log.d(LOG_TAG, m.getName());
+                        if (m.getName().equals(nameStr[1])) {
                             JavascriptInterface annotation = m.getAnnotation(JavascriptInterface.class);
                             if (annotation != null) {
-                               return "1";
+                                return "1";
                             }
                         }
                     }
@@ -341,23 +337,23 @@ public class DWebView extends WebView {
 
             @Keep
             @JavascriptInterface
-            public String _closePage(JSONObject jsonObject) throws JSONException{
-                    Message msg = new Message();
-                    msg.what = JS_CLOSE_WINDOW;
-                    mainThreadHandler.sendMessage(msg);
-                    return null;
-            }
-
-            @Keep
-            @JavascriptInterface
-            public String _disableJavascriptAlertBoxSafetyTimeout(JSONObject jsonObject)throws JSONException{
-                alertboxBlock=jsonObject.getBoolean("disable");
+            public String closePage(JSONObject jsonObject) throws JSONException {
+                Message msg = new Message();
+                msg.what = JS_CLOSE_WINDOW;
+                mainThreadHandler.sendMessage(msg);
                 return null;
             }
 
             @Keep
             @JavascriptInterface
-            public String _init(JSONObject jsonObject){
+            public String disableJavascriptAlertBoxSafetyTimeout(JSONObject jsonObject) throws JSONException {
+                alertboxBlock = jsonObject.getBoolean("disable");
+                return null;
+            }
+
+            @Keep
+            @JavascriptInterface
+            public String init(JSONObject jsonObject) {
                 DWebView.this.dispatchStartupQueue();
                 return null;
             }
@@ -365,16 +361,16 @@ public class DWebView extends WebView {
 
             @Keep
             @JavascriptInterface
-            public void _returnValue(JSONObject jsonObject)throws JSONException {
+            public void returnValue(JSONObject jsonObject) throws JSONException {
                 Message msg = new Message();
                 msg.what = JS_RETURN_VALUE;
-                msg.arg1=jsonObject.getInt("id");
-                msg.arg2=jsonObject.getBoolean("complete")?1:0;
-                msg.obj =jsonObject.getString("data");
+                msg.arg1 = jsonObject.getInt("id");
+                msg.arg2 = jsonObject.getBoolean("complete") ? 1 : 0;
+                msg.obj = jsonObject.getString("data");
                 mainThreadHandler.sendMessage(msg);
             }
 
-        });
+        }, "_dsb");
     }
 
     private void _evaluateJavascript(String script) {
@@ -388,6 +384,7 @@ public class DWebView extends WebView {
     /**
      * This method can be called in any thread, and if it is not called in the main thread,
      * it will be automatically distributed to the main thread.
+     *
      * @param script
      */
     public void evaluateJavascript(final String script) {
@@ -404,6 +401,7 @@ public class DWebView extends WebView {
     /**
      * This method can be called in any thread, and if it is not called in the main thread,
      * it will be automatically distributed to the main thread.
+     *
      * @param url
      */
     @Override
@@ -417,6 +415,7 @@ public class DWebView extends WebView {
     /**
      * This method can be called in any thread, and if it is not called in the main thread,
      * it will be automatically distributed to the main thread.
+     *
      * @param url
      * @param additionalHttpHeaders
      */
@@ -431,30 +430,31 @@ public class DWebView extends WebView {
     /**
      * set a listener for javascript closing the current activity.
      */
-    public void setJavascriptCloseWindowListener( JavascriptCloseWindowListener listener){
-        javascriptCloseWindowListener=listener;
+    public void setJavascriptCloseWindowListener(JavascriptCloseWindowListener listener) {
+        javascriptCloseWindowListener = listener;
     }
 
     public void callHandler(String method, Object[] args) {
         callHandler(method, args, null);
     }
 
-    private ArrayList<CallInfo> callInfoList=new ArrayList<>();
+    private ArrayList<CallInfo> callInfoList = new ArrayList<>();
+
     private class CallInfo {
-        public CallInfo(String handlerName,int id, Object[] args){
+        public CallInfo(String handlerName, int id, Object[] args) {
             if (args == null) args = new Object[0];
             data = new JSONArray(Arrays.asList(args)).toString();
-            callbackId=id;
-            method=handlerName;
+            callbackId = id;
+            method = handlerName;
         }
 
         @Override
         public String toString() {
-            JSONObject jo=new JSONObject();
+            JSONObject jo = new JSONObject();
             try {
-                jo.put("method",method);
-                jo.put("callbackId",callbackId);
-                jo.put("data",data);
+                jo.put("method", method);
+                jo.put("callbackId", callbackId);
+                jo.put("data", data);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -462,31 +462,31 @@ public class DWebView extends WebView {
         }
 
         public String data = null;
-        public int callbackId ;
+        public int callbackId;
         public String method;
     }
 
-    private synchronized void dispatchStartupQueue(){
-        for( CallInfo info : callInfoList){
+    private synchronized void dispatchStartupQueue() {
+        for (CallInfo info : callInfoList) {
             dispatchJavascriptCall(info);
         }
-        callInfoList=null;
+        callInfoList = null;
     }
 
-    private  void dispatchJavascriptCall(CallInfo info){
+    private void dispatchJavascriptCall(CallInfo info) {
         evaluateJavascript(String.format("window._handleMessageFromJava(%s)", info.toString()));
     }
 
     public synchronized void callHandler(String method, Object[] args, final OnReturnValue handler) {
 
-        CallInfo callInfo=new CallInfo(method,callID,args);
+        CallInfo callInfo = new CallInfo(method, callID, args);
         if (handler != null) {
             handlerMap.put(callID++, handler);
         }
 
-        if(callInfoList!=null){
+        if (callInfoList != null) {
             callInfoList.add(callInfo);
-        }else{
+        } else {
             dispatchJavascriptCall(callInfo);
         }
 
@@ -495,26 +495,27 @@ public class DWebView extends WebView {
 
     /**
      * Test whether the handler exist in javascript
+     *
      * @param handlerName
      * @param existCallback
      */
-    public void hasJavascriptMethod(String handlerName, final MethodExistCallback existCallback){
+    public void hasJavascriptMethod(String handlerName, final MethodExistCallback existCallback) {
         callHandler("_hasJavascriptMethod", new Object[]{handlerName}, new OnReturnValue() {
             @Override
             public void onValue(String retValue) {
-               existCallback.onResult(retValue.equals("true"));
+                existCallback.onResult(retValue.equals("true"));
             }
         });
     }
 
     /**
      * @param object JavaScript interface object
-     * @deprecated Use {@link #addJavascriptObject(Object) addJavascriptObject(Object)}
+     * @deprecated Use {@link #addJavascriptObject(Object, String) addJavascriptObject(Object,String)}
      * instead.
      */
     @Deprecated
     public void setJavascriptInterface(Object object) {
-        addJavascriptObject(object);
+        addJavascriptObject(object, "default");
     }
 
     /**
@@ -522,28 +523,37 @@ public class DWebView extends WebView {
      * @param object JavaScript interface object
      */
     public void addJavascriptObject(Object object) {
-        javaScriptInterfaces.add(object);
+        addJavascriptObject(object,"");
     }
 
-    public void setJavascriptObjectWithNamespace(Object object, String namespace) {
-        if(object==null){
+    /**
+     * Add a java object which implemented the javascript interfaces to dsBridge with namespace
+     * @param object
+     * @param namespace
+     */
+    public void addJavascriptObject(Object object, String namespace) {
+        if (object == null) {
             javaScriptNamespaceInterfaces.remove(namespace);
-        }else {
+        } else {
             javaScriptNamespaceInterfaces.put(namespace, object);
         }
     }
 
+    public void removeJavascriptObject() {
+        javaScriptNamespaceInterfaces.remove("");
+    }
+
     /**
      * remove a java object from dsBridge.
-     * @param object JavaScript interface object
+     * @param namespace
      */
-    public void removeJavascriptObject(Object object) {
-        javaScriptInterfaces.remove(object);
+    public void removeJavascriptObject(String namespace) {
+        javaScriptNamespaceInterfaces.remove(namespace);
     }
 
 
-    public void disableJavascriptAlertBoxSafetyTimeout(boolean disable){
-        alertboxBlock=!disable;
+    public void disableJavascriptAlertBoxSafetyTimeout(boolean disable) {
+        alertboxBlock = !disable;
     }
 
     @Override
@@ -647,7 +657,7 @@ public class DWebView extends WebView {
 
         @Override
         public boolean onJsAlert(WebView view, String url, final String message, final JsResult result) {
-            if(!alertboxBlock){
+            if (!alertboxBlock) {
                 result.confirm();
             }
             if (webChromeClient != null) {
@@ -662,7 +672,7 @@ public class DWebView extends WebView {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
-                            if(alertboxBlock) {
+                            if (alertboxBlock) {
                                 result.confirm();
                             }
                         }
@@ -675,7 +685,7 @@ public class DWebView extends WebView {
         @Override
         public boolean onJsConfirm(WebView view, String url, String message,
                                    final JsResult result) {
-            if(!alertboxBlock){
+            if (!alertboxBlock) {
                 result.confirm();
             }
             if (webChromeClient != null && webChromeClient.onJsConfirm(view, url, message, result)) {
@@ -684,7 +694,7 @@ public class DWebView extends WebView {
                 DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if(alertboxBlock) {
+                        if (alertboxBlock) {
                             if (which == Dialog.BUTTON_POSITIVE) {
                                 result.confirm();
                             } else {
@@ -707,7 +717,7 @@ public class DWebView extends WebView {
         @Override
         public boolean onJsPrompt(WebView view, String url, final String message,
                                   String defaultValue, final JsPromptResult result) {
-            if(!alertboxBlock){
+            if (!alertboxBlock) {
                 result.confirm();
             }
 
@@ -723,7 +733,7 @@ public class DWebView extends WebView {
                 DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if(alertboxBlock) {
+                        if (alertboxBlock) {
                             if (which == Dialog.BUTTON_POSITIVE) {
                                 result.confirm(editText.getText().toString());
                             } else {
