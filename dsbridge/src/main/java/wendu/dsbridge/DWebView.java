@@ -541,7 +541,7 @@ public class DWebView extends WebView {
     }
 
     /**
-     * remove a java object by namespace.
+     * remove a javascript object with supplied namespace.
      * @param namespace
      */
     public void removeJavascriptObject(String namespace) {
