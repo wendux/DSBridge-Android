@@ -192,8 +192,8 @@ public class DWebView extends WebView {
                 String error = "Js bridge  called, but can't find a corresponded " +
                         "JavascriptInterface object , please check your code!";
                 String[] nameStr = parseNamespace(methodName);
-                methodName=nameStr[1];
-                Object jsb=javaScriptNamespaceInterfaces.get(nameStr[0]);
+                methodName = nameStr[1];
+                Object jsb = javaScriptNamespaceInterfaces.get(nameStr[0]);
                 if (jsb == null) {
                     PrintDebugInfo(error);
                     return "";
@@ -229,7 +229,7 @@ public class DWebView extends WebView {
                     }
                 }
 
-                if(method==null){
+                if (method == null) {
                     error = "Not find method \"" + methodName + "\" implementation! please check if the  signature or namespace of the method is right ";
                     PrintDebugInfo(error);
                     return "";
@@ -509,46 +509,47 @@ public class DWebView extends WebView {
     }
 
     /**
-     * @param object JavaScript interface object
-     * @deprecated Use {@link #addJavascriptObject(Object, String) addJavascriptObject(Object,String)}
-     * instead.
+     * Add/remove a java object which implemented the javascript interfaces to dsBridge,
+     * @param object JavaScript interface object with the default namespace,
+     *               if null value, remove the object that with the default namespace.
+     *               instead.
+     * @deprecated Use {@link #addJavascriptObject(Object, String) addJavascriptObject(Object,String)} instead
      */
+
     @Deprecated
     public void setJavascriptInterface(Object object) {
-        addJavascriptObject(object, "default");
+        if (object == null) {
+            removeJavascriptObject("");
+        } else {
+            addJavascriptObject(object, "");
+        }
     }
 
     /**
-     * Add a java object which implemented the javascript interfaces to dsBridge .
-     * @param object JavaScript interface object
-     */
-    public void addJavascriptObject(Object object) {
-        addJavascriptObject(object,"");
-    }
-
-    /**
-     * Add a java object which implemented the javascript interfaces to dsBridge with namespace
+     * Add a java object which implemented the javascript interfaces to dsBridge with namespace.
+     * Remove the object using {@link #removeJavascriptObject(String) removeJavascriptObject(String)}
      * @param object
-     * @param namespace
+     * @param namespace if empty, the object have no namespace.
      */
     public void addJavascriptObject(Object object, String namespace) {
-        if (object == null) {
-            javaScriptNamespaceInterfaces.remove(namespace);
-        } else {
+        if (namespace == null) {
+            namespace = "";
+        }
+        if (object != null) {
             javaScriptNamespaceInterfaces.put(namespace, object);
         }
     }
 
-    public void removeJavascriptObject() {
-        javaScriptNamespaceInterfaces.remove("");
-    }
-
     /**
-     * remove a java object from dsBridge.
+     * remove a java object by namespace.
      * @param namespace
      */
     public void removeJavascriptObject(String namespace) {
+        if (namespace == null) {
+            namespace = "";
+        }
         javaScriptNamespaceInterfaces.remove(namespace);
+
     }
 
 
