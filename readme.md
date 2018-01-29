@@ -10,7 +10,7 @@
 
 
 
-## Download
+## Installation
 
 1. Add the JitPack repository to your build file
 
@@ -35,7 +35,7 @@
    }
    ```
 
-## Installation
+## Usage
 
 1. Implement apis in Java
 
@@ -172,6 +172,7 @@ webView.callHandler("addValue",new Object[]{1,6},new OnReturnValue(){
         Log.d("jsbridge","call succeed,return value is: "+retValue);
     }
 });
+
 webView.callHandler("append",new Object[]{"I","love","you"},new OnReturnValue(){
     @Override
     public void onValue(String retValue) {
@@ -252,7 +253,7 @@ Call Java api synchronously and asynchronously。
 
 ##### `dsBridge.register(methodName|namespace,function|methodObject)`
 
-#####`dsBridge.registerAsyn(methodName|namespace,function|methodObject)`
+##### `dsBridge.registerAsyn(methodName|namespace,function|methodObject)`
 
 Register javascript synchronous and asynchronous  method for Native invocation. There are two types of invocation
 
@@ -294,7 +295,7 @@ Register javascript synchronous and asynchronous  method for Native invocation. 
    In Javascript
 
    ```java
-   // namespace test for synchronous
+   //namespace test for synchronous
    dsBridge.register("test",{
     tag:"test",
     test1:function(){
@@ -304,6 +305,7 @@ Register javascript synchronous and asynchronous  method for Native invocation. 
    	return this.tag+"2"
     }
    })
+     
    //namespace test1 for asynchronous calls  
    dsBridge.registerAsyn("test1",{
     tag:"test1",
