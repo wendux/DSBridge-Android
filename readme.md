@@ -2,11 +2,13 @@
 # DSBridge
 
 [![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) 
->DSBridge is currently the best Javascript bridge  in the world , by which we can call functions synchronously and asynchronously between web and Native . Moreover, both android and ios  are supported  ! 
+>The modern cross-platform JavaScript bridge, through which you can invoke each other's functions synchronously or asynchronously between JavaScript and native applications.
 
 ### Notice
 
-**This  branch(master)  contains preview features,  you should use the latest stable version (now is 2.0 )**
+**This  branch(master)  includes some preview features,  you should use the latest stable version (now is 2.0 )**
+
+DSBridge v3.0.0 preview change list  	DSBridge v3.0.0 预览版更新列表
 
 
 
@@ -27,11 +29,10 @@
 
    ```java
    dependencies {
-   	compile 'com.github.wendux:DSBridge-Android:2.0-SNAPSHOT'
-
+       compile 'com.github.wendux:DSBridge-Android:master-SNAPSHOT'
+       //compile 'com.github.wendux:DSBridge-Android:2.0-SNAPSHOT'
    	// support  the x5 browser core of tencent
    	// compile 'com.github.wendux:DSBridge-Android:x5-SNAPSHOT'
-   	//compile 'com.github.wendux:DSBridge-Android:master-SNAPSHOT'
    }
    ```
 
@@ -43,19 +44,19 @@
    public class JsApi{
        //for synchronous invocation
        @JavascriptInterface
-       String testSyn(JSONObject jsonObject) throws JSONException {
-           // The return value type can only be  String
-           return jsonObject.getString("msg") + "［syn call］";
+       public String testSyn(Object msg)  {
+           return msg + "［syn call］";
        }
+
        //for asynchronous invocation
        @JavascriptInterface
-       void testAsyn(JSONObject jsonObject, CompletionHandler handler) throws JSONException {
-           handler.complete(jsonObject.getString("msg")+" [asyn call]");
+       public void testAsyn(Object msg, CompletionHandler handler) {
+           handler.complete(msg+" [ asyn call]");
        }
    }
    ```
 
-   For security reason, Java api must be with "@JavascriptInterface" annotation, For more detail about this topic, please google .
+   For security reason, Java api must be with "@JavascriptInterface" annotation .
 
 2. Setup api class to DWebView  instance.
 
@@ -72,25 +73,24 @@
 
      ```javascript
      //cdn
-     //For master <script src="https://unpkg.com/dsbridge/dist/dsbridge.js"> </script>
-     //For 2.0.0<script src="https://unpkg.com/dsbridge@2.0.0/dist/dsbridge.js"> </script>
+     //<script src="https://unpkg.com/dsbridge@3.0.6/dist/dsbridge.js"> </script>
      //npm
-     //For master: npm install dsbridge
-     //For 2.0.0: npm install dsbridge@2.0.0
+     //npm install dsbridge@3.0.6
      var dsBridge=require("dsbridge")
      ```
 
-   - Call API
+   - Call Java API and register a javascript api for Java
 
      ```javascript
 
      //Call synchronously 
-     var str=dsBridge.call("testSyn", {msg: "testSyn"});
+     var str=dsBridge.call("testSyn","testSyn");
 
      //Call asynchronously
-     dsBridge.call("testAsyn", {msg: "testAsyn"}, function (v) {
+     dsBridge.call("testAsyn","testAsyn", function (v) {
        alert(v);
      })
+
      //Register javascript function for Native invocation
       dsBridge.register('addValue',function(l,r){
           return l+r;
@@ -100,9 +100,9 @@
 4. Call Javascript function in java
 
    ```java
-   webView.callHandler("addValue",new Object[]{1,"hello"},new OnReturnValue(){
+   dwebView.callHandler("addValue",new Object[]{3,4},new OnReturnValue<Integer>(){
           @Override
-          public void onValue(String retValue) {
+          public void onValue(Integer retValue) {
              Log.d("jsbridge","call succeed,return value is "+retValue);
           }
    });
@@ -114,66 +114,71 @@
 
 In Java, the object that implements the javascript interfaces is called Javascript Object.
 
-##### `addJavascriptObject(Object object, String namespace)`
+##### `dwebview.addJavascriptObject(Object object, String namespace)`
 
-Add the  Javascript Object with supplied namespace into DWebView. The javascript can then call  javascript interface  with `bridge.call("namespace.interface")`. 
+Add the  Javascript Object with supplied namespace into DWebView. The javascript can then call  javascript interface  with `bridge.call("namespace.interface",...)`. 
 
-If the namespace is empty, the Javascript Object have no namespace. The javascript can  call  javascript interface  with `bridge.call("interface")`. 
+If the namespace is empty, the Javascript Object have no namespace. The javascript can  call  javascript interface  with `bridge.call("interface",...)`. 
 
 Example:
 
 In Java
 
 ```javascript
-public class JsApiTest{
-   @JavascriptInterface
-    public String test(JSONObject jsonObject) throws JSONException {
-        return jsonObject.getString("msg") + "［syn call］";
+public class JsEchoApi {
+    @JavascriptInterface
+    public Object syn(Object args) throws JSONException {
+        return  args;
     }
-}
 
-public class JsApiTest1{
-   @JavascriptInterface
-    public String test1(JSONObject jsonObject) throws JSONException {
-        return jsonObject.getString("msg") + "［syn call］";
+    @JavascriptInterface
+    public void asyn(Object args,CompletionHandler handler){
+        handler.complete(args);
     }
 }
-dwebView.addJavascriptObject(new JsApiTest(), null);//without namespace
-dwebView.addJavascriptObject(new JsApiTest1(),"test1");//namespace is "test1"
+//namespace is "echo"
+dwebView.addJavascriptObject(new JsEchoApi(),"echo");
 ```
 
 In Javascript
 
 ```javascript
-//call java api without namespace
-dsBridge.call("testSyn", {msg: "testSyn"})
-//call java api with namespace "test1"
-dsBridge.call("test1.testSyn", {msg: "testSyn"})
+// call echo.syn
+var ret=dsBridge.call("echo.syn",{msg:" I am echoSyn call", tag:1})
+alert(JSON.stringify(ret))  
+// call echo.asyn
+dsBridge.call("echo.asyn",{msg:" I am echoAsyn call",tag:2},function (ret) {
+        alert(JSON.stringify(ret));
+})
 ```
 
 
 
-##### `removeJavascriptObject(String namespace)`
+##### `dwebview.removeJavascriptObject(String namespace)`
 
 Remove the Javascript Object with supplied namespace.
 
-##### `callHandler(String handlerName, Object[] args)`
 
-##### `webview.callHandler(String handlerName, Object[] args,OnReturnValue handler)`
+
+##### `dwebview.callHandler(String handlerName, Object[] args)`
+
+##### `dwebview.callHandler(String handlerName, OnReturnValue handler)`
+
+##### `dwebview.callHandler(String handlerName, Object[] args,OnReturnValue handler)`
 
 Call the javascript handler called `handlerName`. If a `handler` is given, the javascript handler can respond.
 
 Example:
 
 ```java
-webView.callHandler("addValue",new Object[]{1,6},new OnReturnValue(){
-    @Override
-    public void onValue(String retValue) {
-        Log.d("jsbridge","call succeed,return value is: "+retValue);
-    }
+dWebView.callHandler("addValue", new Object[]{3, 4}, new OnReturnValue<Integer>() {
+  @Override
+  public void onValue(Integer retValue) {
+    Log.d("jsbridge","call succeed, addValue(3,4): "+retValue);
+  }
 });
 
-webView.callHandler("append",new Object[]{"I","love","you"},new OnReturnValue(){
+dWebView.callHandler("append",new Object[]{"I","love","you"},new OnReturnValue<String>((){
     @Override
     public void onValue(String retValue) {
         Log.d("jsbridge","call succeed, append string is: "+retValue);
@@ -183,26 +188,28 @@ webView.callHandler("append",new Object[]{"I","love","you"},new OnReturnValue(){
 
 
 
-##### `disableJavascriptAlertBoxSafetyTimeout(bool disable)`
+##### `dwebview.disableJavascriptDialogBlock(bool disable)`
 
-UNSAFE. Speed up bridge message passing by disabling the setTimeout safety check. It is only safe to disable this safety check if you do not call any of the javascript popup box functions (alert, confirm, and prompt). If you call any of these functions from the bridged javascript code, the app will hang.
+BE CAREFUL to use. if you call any of the javascript popup box functions (`alert`,` confirm`, and `prompt`), the app will hang, and the javascript execution flow will be blocked. if you don't want to block the javascript execution flow, call this method, the  popup box functions will return  immediately(  `confirm` return true, and the `prompt` return empty string).
 
 Example:
 
 ```javascript
-webview.disableJavascriptAlertBoxSafetyTimeout(true);
+dwebview.disableJavascriptDialogBlock(true);
 ```
 
+if you want to recover enabling the block,  just call this method with the argument value `false` .
 
 
-##### setJavascriptCloseWindowListener(JavascriptCloseWindowListener listener)`
+
+##### dwebview.setJavascriptCloseWindowListener(JavascriptCloseWindowListener listener)`
 
 DWebView calls `listener.onclose` when JavaScript calls `window.close`. the default handler is closing the current active activity.  you can provide a listener to add your hanlder .
 
 Example:
 
-```javascript
-webView.setJavascriptCloseWindowListener(new DWebView.JavascriptCloseWindowListener() {
+```java
+dwebview.setJavascriptCloseWindowListener(new DWebView.JavascriptCloseWindowListener() {
     @Override
     public boolean onClose() {
         Log.d("jsbridge","window.close is called in Javascript");
@@ -214,19 +221,19 @@ webView.setJavascriptCloseWindowListener(new DWebView.JavascriptCloseWindowListe
 
 
 
-##### `hasJavascriptMethod(String handlerName, MethodExistCallback existCallback)`
+##### `dwebview.hasJavascriptMethod(String handlerName, OnReturnValue<Boolean> existCallback`
 
 Test whether the handler exist in javascript. 
 
 Example:
 
-```javascript
-webView.hasJavascriptMethod("addValue", new DWebView.MethodExistCallback() {
+```java
+ dWebView.hasJavascriptMethod("addValue", new OnReturnValue<Boolean>() {
     @Override
-    public void onResult(boolean exist) {
-        Log.d("jsbridge", "method exist:" + exist);
+    public void onValue(Boolean retValue) {
+     showToast(retValue);
     }
-});
+ });
 ```
 
 
@@ -251,9 +258,9 @@ Call Java api synchronously and asynchronously。
 
 
 
-##### `dsBridge.register(methodName|namespace,function|methodObject)`
+##### `dsBridge.register(methodName|namespace,function|synApiObject)`
 
-##### `dsBridge.registerAsyn(methodName|namespace,function|methodObject)`
+##### `dsBridge.registerAsyn(methodName|namespace,function|asyApiObject)`
 
 Register javascript synchronous and asynchronous  method for Native invocation. There are two types of invocation
 
@@ -320,7 +327,7 @@ Register javascript synchronous and asynchronous  method for Native invocation. 
 
    In Java
 
-   ```javascript
+   ```java
    webView.callHandler("test.test1",null,new OnReturnValue(){
        @Override
        public void onValue(String retValue) {
@@ -339,43 +346,53 @@ Register javascript synchronous and asynchronous  method for Native invocation. 
 
 
 
-##### `hasNativeMethod(handlerName)`
+##### `dsBridge.hasNativeMethod(handlerName,[type])`
 
 Test whether the handler exist in Java. 
 
+`type`: optional ("all","syn","asyn"), default is "all"
+
 ```javascript
-dsBridge.hasNativeMethod('testAsyn')
+dsBridge.hasNativeMethod('testAsyn') 
 //test namespace method
 dsBridge.hasNativeMethod('test.testAsyn')
+// test if exist a asynchronous function that named "testSyn"
+dsBridge.hasNativeMethod('testSyn','asyn') //false
 ```
 
 
 
-##### `dsBridge.disableJavascriptAlertBoxSafetyTimeout(disable)`
+##### `dsBridge.disableJavascriptDialogBlock(disable)`
 
-Calling `dsBridge.disableJavascriptAlertBoxSafetyTimeout(...)` has the same effect as calling `webview disableJavscriptAlertBoxSafetyTimeout(...)` in Java.
+Calling `dsBridge.disableJavascriptDialogBlock(...)` has the same effect as calling `dwebview disableJavascriptDialogBlock(...)` in Java.
 
 Example:
 
 ```javascript
 //disable
-dsBridge.disableJavascriptAlertBoxSafetyTimeout()
+dsBridge.disableJavascriptDialogBlock()
 //enable
-dsBridge.disableJavascriptAlertBoxSafetyTimeout(false)
+dsBridge.disableJavascriptDialogBlock(false)
 ```
 
 
 
 ## Notice
 
-### Java api signature
+### Java API signature
 
-In order to be compatible with IOS and Android, we make the following convention  on native api signature:
+In order to be compatible with IOS and Android, we make the following convention  on native API signature:
 
-1. The tye of return value must be **String;** if not need, just return null.
-2. The arguments  passed by   JSONObject, if the api doesn't need argument, you still need declare the jsonObject argument. 
+1. For synchronous API
+    **` public any handler(Object msg) `**
 
-### More about DWebview
+   ​    The argument type must be Object, and the type of return value  is not limited.
+
+2. For asynchronous API
+
+    **`public void handler(Object arg, CompletionHandler handler)`**
+
+### More about DWebView
 
 In DWebview, the following functions will execute in main thread automatically, you need not to switch thread by yourself.
 

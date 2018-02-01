@@ -14,40 +14,41 @@ import wendu.dsbridge.CompletionHandler;
 
 public class JsApi{
     @JavascriptInterface
-    public String testSyn(JSONObject jsonObject) throws JSONException {
-        return jsonObject.getString("msg") + "［syn call］";
-    }
-
-    //@JavascriptInterface
-    //此方法没有@JavascriptInterface标注将不会被调用
-    public String testNever(JSONObject jsonObject) throws JSONException {
-        return jsonObject.getString("msg") + "[ never call]";
+    public String testSyn(Object msg)  {
+        return msg + "［syn call］";
     }
 
     @JavascriptInterface
-    public String testNoArgSyn(JSONObject jsonObject) throws JSONException {
+    public void testAsyn(Object msg, CompletionHandler handler) throws JSONException {
+        handler.complete(msg+" [ asyn call]");
+    }
+
+    @JavascriptInterface
+    public String testNoArgSyn(Object arg) throws JSONException {
         return  "testNoArgSyn called [ syn call]";
     }
 
     @JavascriptInterface
-    public void testNoArgAsyn(JSONObject jsonObject,CompletionHandler handler) throws JSONException {
-        handler.complete( "testNoArgAsyn  called [ asyn call]");
+    public void testNoArgAsyn(Object object,CompletionHandler handler) throws JSONException {
+        handler.complete( "testNoArgAsyn   called [ asyn call]");
+    }
+
+
+    //@JavascriptInterface
+    //此方法没有@JavascriptInterface标注将不会被调用
+    public void testNever(Object jsonObject) throws JSONException {
+        //return jsonObject.getString("msg") + "[ never call]";
     }
 
     @JavascriptInterface
-    public void testAsyn(JSONObject jsonObject, CompletionHandler handler) throws JSONException {
-        handler.complete(jsonObject.getString("msg")+" [ asyn call]");
-    }
-
-    @JavascriptInterface
-    public void callProgress(JSONObject jsonObject, final CompletionHandler handler) throws JSONException {
+    public void callProgress(Object args, final CompletionHandler handler) throws JSONException {
 
         new CountDownTimer(11000, 1000) {
             int i=10;
             @Override
             public void onTick(long millisUntilFinished) {
                 //setProgressData can be called many times util complete be called.
-                handler.setProgressData((i--)+"");
+                handler.setProgressData((i--));
 
             }
             @Override
@@ -70,9 +71,9 @@ public class JsApi{
      */
 
     @JavascriptInterface
-    public void onAjaxRequest(JSONObject requestData, CompletionHandler handler){
+    public void onAjaxRequest(Object requestData, CompletionHandler handler){
         // Handle ajax request redirected by Fly
-        AjaxHandler.onAjaxRequest(requestData,handler);
+        AjaxHandler.onAjaxRequest((JSONObject)requestData,handler);
     }
 
 

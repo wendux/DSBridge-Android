@@ -5,9 +5,42 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="wendu.jsbdemo.MainActivity">
-<wendu.dsbridge.DWebView
-    android:id="@+id/webview"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            />
+        <Button
+            android:id="@+id/callJs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Native call Javascript"
+            android:textAllCaps="false"
+            />
+
+        <Button
+            android:id="@+id/callNative"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Javascript call Native"
+            android:textAllCaps="false"
+            />
+
+        <Button
+            android:id="@+id/fly"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="fly.js test"
+            android:textAllCaps="false"
+            />
+
+    </LinearLayout>
+
 </RelativeLayout>

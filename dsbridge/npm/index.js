@@ -1,35 +1,34 @@
 var bridge = {
+    default:this,// for typescript
     call: function (method, args, cb) {
         var ret = '';
         if (typeof args == 'function') {
             cb = args;
             args = {};
         }
+        var arg={data:args || {}}
         if (typeof cb == 'function') {
             var cbName = 'dscb' + window.dscb++;
             window[cbName] = cb;
-            args['_dscbstub'] = cbName;
+            arg['_dscbstub'] = cbName;
         }
-        args = JSON.stringify(args || {})
+        arg = JSON.stringify(arg)
 
-        if (window._dswk) {
-            ret = prompt(window._dswk + method, args);
+        if (window._dswk) { //IOS DWKWebView
+            ret = prompt(window._dswk + method, arg);
         } else {
-            if (typeof _dsbridge == 'function') {
-                ret = _dsbridge(method, args);
-
-            } else {
-                ret = _dsbridge.call(method, args);
-            }
+            // Android
+           ret = _dsbridge.call(method, arg);
         }
-        return ret;
+       return  JSON.parse(ret).data
     },
     register: function (name, fun, asyn) {
         var q = asyn ? window._dsaf : window._dsf
-        if (!window._initCalled) {
-            window._initCalled = true;
+        if (!window._dsInit) {
+            window._dsInit = true;
+            //notify native that js apis register successfully on next event loop
             setTimeout(function () {
-                bridge.call("_dsb.init");
+                bridge.call("_dsb.dsinit");
             }, 0)
         }
         if (typeof fun == "object") {
@@ -41,13 +40,11 @@ var bridge = {
     registerAsyn: function (name, fun) {
         this.register(name, fun, true);
     },
-    hasNativeMethod: function (name) {
-        return this.call("_dsb.hasNativeMethod", {
-            "name": name
-        }) == '1';
+    hasNativeMethod: function (name, type) {
+        return this.call("_dsb.hasNativeMethod", {name: name, type:type||"all"});
     },
-    disableJavascriptAlertBoxSafetyTimeout: function (disable) {
-        this.call("_dsb.disableJavascriptAlertBoxSafetyTimeout", {
+    disableJavascriptDialogBlock: function (disable) {
+        this.call("_dsb.disableJavascriptDialogBlock", {
             disable: disable !== false
         })
     }
@@ -67,7 +64,7 @@ var bridge = {
         close: function () {
             bridge.call("_dsb.closePage")
         },
-        _handleMessageFromJava: function (info) {
+        _handleMessageFromNative: function (info) {
             var arg = JSON.parse(info.data);
             var ret = {
                 id: info.callbackId,
@@ -76,13 +73,13 @@ var bridge = {
             var f = this._dsf[info.method];
             var af = this._dsaf[info.method]
             var callSyn = function (f, ob) {
-                ret.data = f.apply(ob, arg) || ""
+                ret.data = f.apply(ob, arg)
                 bridge.call("_dsb.returnValue", ret)
             }
             var callAsyn = function (f, ob) {
                 arg.push(function (data, complete) {
                     ret.data = data;
-                    ret.complete = !!complete;
+                    ret.complete = complete!==false;
                     bridge.call("_dsb.returnValue", ret)
                 })
                 f.apply(ob, arg)
@@ -92,20 +89,21 @@ var bridge = {
             } else if (af) {
                 callAsyn(af, this._dsaf);
             } else {
-                name = info.method.split('.');
+                //with namespace
+                var name = info.method.split('.');
                 if (name.length<2) return;
-                var nsm=name.pop();
-                var ns=name.join('.')
+                var method=name.pop();
+                var namespace=name.join('.')
                 var obs = this._dsf._obs;
-                var ob = obs[ns] || {};
-                var m = ob[nsm];
+                var ob = obs[namespace] || {};
+                var m = ob[method];
                 if (m && typeof m == "function") {
                     callSyn(m, ob);
                     return;
                 }
                 obs = this._dsaf._obs;
-                ob = obs[ns] || {};
-                m = ob[nsm];
+                ob = obs[namespace] || {};
+                m = ob[method];
                 if (m && typeof m == "function") {
                     callAsyn(m, ob);
                     return;
@@ -113,11 +111,20 @@ var bridge = {
             }
         }
     }
-    for (var m in ob) {
-        window[m] = ob[m]
+    for (var attr in ob) {
+        window[attr] = ob[attr]
     }
-    bridge.register("_hasJavascriptMethod", function (name) {
-        return !!window._dsf[name]
+    bridge.register("_hasJavascriptMethod", function (method, tag) {
+         var name = method.split('.')
+         if(name.length<2) {
+           return !!(_dsf[name]||_dsaf[name])
+         }else{
+           // with namespace
+           var method=name.pop()
+           var namespace=name.join('.')
+           var ob=_dsf._obs[namespace]||_dsaf._obs[namespace]
+           return ob&&!!ob[method]
+         }
     })
 }();
 

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="wendu.jsbdemo.CallJavascriptActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <Button
+                android:id="@+id/addValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="addValue(3,4)"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/append"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="append('I','love','you')"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/startTimer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="startTimer()"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/synAddValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="syn.addValue(5,6)"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/synGetInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="syn.getInfo()"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/asynAddValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="asyn.addValue(5,6)"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/asynGetInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="asyn.getInfo()"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/hasMethodAddValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="hasJavascriptMethod('addValue')"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/hasMethodXX"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="hasJavascriptMethod('XX')"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/hasMethodAsynAddValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="hasJavascriptMethod('asyn.addValue')"
+                android:textAllCaps="false" />
+            <Button
+                android:id="@+id/hasMethodAsynXX"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="hasJavascriptMethod('asyn.XX')"
+                android:textAllCaps="false" />
+            <wendu.dsbridge.DWebView
+                android:id="@+id/webview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>
+

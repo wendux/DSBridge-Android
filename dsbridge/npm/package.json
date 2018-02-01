@@ -1,7 +1,8 @@
 {
   "name": "dsbridge",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "main": "index.js",
+  "typings": "./index.d.ts",
   "author": {
     "name": "wendux",
     "email": "824783146@qq.com",
@@ -14,11 +15,13 @@
   ],
   "respository": {
     "type": "git",
-    "url": "https://github.com/wendux/DSBridge-Android"
+    "url": "https://github.com/wendux/DSBridge-Android",
+    "url2": "https://github.com/wendux/DSBridge-IOS"
   },
   "homepage": "https://github.com/wendux",
   "bugs": {
-    "url": "https://github.com/wendux/DSBridge-Android/issues"
+    "url": "https://github.com/wendux/DSBridge-Android/issues",
+    "url2": "https://github.com/wendux/DSBridge-IOS/issues"
   },
   "devDependencies": {
   },
