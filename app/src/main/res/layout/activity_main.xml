@@ -14,7 +14,8 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text=""
+            android:padding="18dp"
+            android:text="Because unpkg.com's CDN has a slower access in China, it's normal to open the test page sometimes, it's not a problem for DSBridge."
             />
         <Button
             android:id="@+id/callJs"

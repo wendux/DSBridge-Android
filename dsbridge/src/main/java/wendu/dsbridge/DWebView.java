@@ -894,7 +894,6 @@ public class DWebView extends WebView {
             }
         }
 
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
                                          FileChooserParams fileChooserParams) {
