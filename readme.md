@@ -29,8 +29,8 @@ DSBridge v3.0 is a milestone. Compared with v2.0.X, we have made a lot of change
    dependencies {
        compile 'com.github.wendux:DSBridge-Android:master-SNAPSHOT'
        //compile 'com.github.wendux:DSBridge-Android:2.0-SNAPSHOT'
-   	   //support the x5 browser core of tencent
-   	   //compile 'com.github.wendux:DSBridge-Android:x5-SNAPSHOT'
+   	 //support the x5 browser core of tencent
+   	 //compile 'com.github.wendux:DSBridge-Android:x5-SNAPSHOT'
    }
    ```
 
