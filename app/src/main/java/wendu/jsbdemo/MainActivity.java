@@ -23,6 +23,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this,JavascriptCallNativeActivity.class));
             }
         });
+        findViewById(R.id.fly).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,WrokWithFlyioTestActivity.class));
+            }
+        });
 
     }
 }

@@ -19,7 +19,7 @@ public class JsApi{
     }
 
     @JavascriptInterface
-    public void testAsyn(Object msg, CompletionHandler handler) throws JSONException {
+    public void testAsyn(Object msg, CompletionHandler handler){
         handler.complete(msg+" [ asyn call]");
     }
 
@@ -29,19 +29,20 @@ public class JsApi{
     }
 
     @JavascriptInterface
-    public void testNoArgAsyn(Object object,CompletionHandler handler) throws JSONException {
+    public void testNoArgAsyn(Object arg,CompletionHandler handler) {
         handler.complete( "testNoArgAsyn   called [ asyn call]");
     }
 
 
     //@JavascriptInterface
-    //此方法没有@JavascriptInterface标注将不会被调用
-    public void testNever(Object jsonObject) throws JSONException {
-        //return jsonObject.getString("msg") + "[ never call]";
+    //without @JavascriptInterface annotation can't be called
+    public String testNever(Object arg) throws JSONException {
+        JSONObject jsonObject= (JSONObject) arg;
+        return jsonObject.getString("msg") + "[ never call]";
     }
 
     @JavascriptInterface
-    public void callProgress(Object args, final CompletionHandler handler) throws JSONException {
+    public void callProgress(Object args, final CompletionHandler handler) {
 
         new CountDownTimer(11000, 1000) {
             int i=10;
@@ -59,22 +60,4 @@ public class JsApi{
             }
         }.start();
     }
-
-    /**
-     *
-     * @param requestData
-     * @param handler
-     *
-     * Note: This method is for Fly.js
-     * In browsers, Ajax requests are sent by browsers, and Fly can
-     * redirect requests to native, more about Fly see  https://github.com/wendux/fly
-     */
-
-    @JavascriptInterface
-    public void onAjaxRequest(Object requestData, CompletionHandler handler){
-        // Handle ajax request redirected by Fly
-        AjaxHandler.onAjaxRequest((JSONObject)requestData,handler);
-    }
-
-
 }

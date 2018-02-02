@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh-cmn-Hans">
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+    <!--require dsbridge init js-->
+    <script src="https://unpkg.com/dsbridge/dist/dsbridge.js"> </script>
+    <!--require flyio-->
+    <script src="https://unpkg.com/flyio/dist/fly.min.js"></script>
+    <script src="https://unpkg.com/flyio/dist/engine-wrapper.min.js"></script>
+    <script src="https://unpkg.com/flyio/dist/adapter/dsbridge.min.js"></script>
+</head>
+<style>
+    .btn {
+            text-align: center;
+            background: #eee;
+            color: #000;
+            padding: 10px;
+            margin: 20px;
+            font-size: 14px;
+            border-radius: 3px;
+            box-shadow: 4px 2px 10px #999;
+     }
+
+    .btn:active {
+        opacity: .7;
+        box-shadow: 4px 2px 10px #555;
+    }
+
+    #intro{
+      padding:16px;
+    }
+
+ </style>
+<body>
+<div id="intro">
+    <a href="https://github.com/wendux/fly">Fly.js </a> supports forwarding the http request (ajax) to Native through any Javascript bridge, And fly.js has already provide the dsBridge adapter. Because the  Native side has no the same-origin policy restriction, fly.js can request any resource from any domain.
+</div>
+<div class="btn" id="fly-ajax">Get home page source code of baidu.com</div>
+<div class="btn" id="git-cat">Show the logo of github </div>
+<div style="text-align:center"><img id="img"></div>
+<div class="btn" onclick="window.close()">Close window</div>
+<script>
+
+    function addClick(id,onResult){
+      document.getElementById(id).addEventListener("click",onResult);
+    }
+
+    // fly will forward the ajax request to native by WebviewJavascriptBridge,
+    // the http request will be performed actually by native (onAjaxRequest).
+
+     //use by dsbridge adapter, reference on https://wendux.github.io/dist/#/doc/flyio-en/files
+     var engine = EngineWrapper(dsbAdapter)
+     fly.engine = engine;
+     addClick("fly-ajax",function(){
+        fly.get("https://www.baidu.com/").then(function(d){
+           alert(d.data)
+        })
+     })
+
+     addClick("git-cat",function(){
+         var img=document.getElementById("img")
+         var btn=document.getElementById("git-cat")
+         img.src="";
+         btn.innerText="loading..."
+         // request the image, reference on https://wendux.github.io/dist/#/doc/flyio-en/native
+         fly.get("https://assets-cdn.github.com/favicon.ico", null,{
+            responseType:"stream"
+          }).then(function (d) {
+           //data is encoded with base64
+           img.src=d.data;
+           btn.innerText="look!"
+         })
+     })
+
+</script>
+</body>
+</html>

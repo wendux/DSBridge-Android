@@ -153,7 +153,7 @@ public class DWebView extends WebView {
     }
 
     /**
-     * Set debug model. if in debug model, some errors will be prompted by a dialog
+     * Set debug mode. if in debug mode, some errors will be prompted by a dialog
      * and the exception caused by the native handlers will not be captured.
      * @param enabled
      */

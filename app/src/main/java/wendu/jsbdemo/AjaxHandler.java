@@ -23,25 +23,27 @@ import wendu.dsbridge.CompletionHandler;
 /**
  * Created by du on 2017/10/31.
  *
- * This class handles the Ajax requests forwarded by fly.js in WebView
+ * This class handles the Ajax requests forwarded by fly.js in DWebView
  * More about fly.js see https://github.com/wendux/fly
  */
 
 public class AjaxHandler {
     public static void onAjaxRequest(final JSONObject requestData, final CompletionHandler handler){
+
+        // Define response structure
         final Map<String, Object> responseData=new HashMap<>();
         responseData.put("statusCode",0);
 
         try {
-            //timeout值为0时代表不设置超时
             int timeout =requestData.getInt("timeout");
-            //创建okhttp实例并设置超时
+            // Create a okhttp instance and set timeout
             final OkHttpClient okHttpClient = new OkHttpClient
                     .Builder()
                     .connectTimeout(timeout, TimeUnit.MILLISECONDS)
                     .build();
 
-            //判断是否需要将返回结果编码，responseType为stream时应编码
+            // Determine whether you need to encode the response result.
+            // And encode when responseType is stream.
             String contentType="";
             boolean encode=false;
             String responseType=requestData.optString("responseType",null);
@@ -53,14 +55,14 @@ public class AjaxHandler {
             rb.url(requestData.getString("url"));
             JSONObject headers=requestData.getJSONObject("headers");
 
-            //设置请求头
+            // Set request headers
             Iterator iterator = headers.keys();
             while(iterator.hasNext()){
                 String  key = (String) iterator.next();
                 String value = headers.getString(key);
                 String lKey=key.toLowerCase();
                 if(lKey.equals("cookie")){
-                    //使用CookieJar统一管理cookie
+                    // Here you can use CookieJar to manage cookie in a unified way with you native code.
                     continue;
                 }
                 if(lKey.toLowerCase().equals("content-type")){
@@ -69,13 +71,13 @@ public class AjaxHandler {
                 rb.header(key,value);
             }
 
-            //创建请求体
+            // Create request body
             if(requestData.getString("method").equals("POST")){
                 RequestBody requestBody=RequestBody
                         .create(MediaType.parse(contentType),requestData.getString("data"));
                 rb.post(requestBody) ;
             }
-            //创建并发送http请求
+            // Create and send HTTP requests
             Call call=okHttpClient.newCall(rb.build());
             final boolean finalEncode = encode;
             call.enqueue(new Callback() {
@@ -88,7 +90,7 @@ public class AjaxHandler {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     String data;
-                    //如果需要编码，则对结果进行base64编码后返回
+                    // If encoding is needed, the result is encoded by Base64 and returned
                     if(finalEncode){
                         data= Base64.encodeToString(response.body().bytes(),Base64.DEFAULT);
                     }else{

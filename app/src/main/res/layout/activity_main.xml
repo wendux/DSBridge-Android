@@ -8,7 +8,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
         >
         <TextView
@@ -35,12 +35,12 @@
 
         <Button
             android:id="@+id/fly"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="fly.js test"
+            android:text="Work with fly.js test"
             android:textAllCaps="false"
             />
+
 
     </LinearLayout>
 
