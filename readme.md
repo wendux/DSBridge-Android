@@ -14,7 +14,7 @@ DSBridge v3.0 is a milestone. Compared with v2.0.X, we have made a lot of change
 
 1. Add the JitPack repository to your build file
 
-   ```java
+   ```
    allprojects {
      repositories {
       ...
@@ -25,7 +25,7 @@ DSBridge v3.0 is a milestone. Compared with v2.0.X, we have made a lot of change
 
 2. Add the dependency
 
-   ```java
+   ```
    dependencies {
        compile 'com.github.wendux:DSBridge-Android:master-SNAPSHOT'
        //compile 'com.github.wendux:DSBridge-Android:2.0-SNAPSHOT'
