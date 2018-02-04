@@ -4,7 +4,11 @@
 [![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) 
 >Modern cross-platform JavaScript bridge, through which you can invoke each other's functions synchronously or asynchronously between JavaScript and native applications.
 
-Chinese documentation [中文文档](https://github.com/wendux/DSBridge-Android/blob/master/readme-chs.md)       
+
+
+**This branch is for x5 webcore of Tencent**
+
+Chinese documentation [中文文档](https://github.com/wendux/DSBridge-Android/blob/x5-3.0/readme-chs.md)       
 DSBridge-IOS：https://github.com/wendux/DSBridge-IOS       
 
 ### Notice
@@ -43,10 +47,7 @@ DSBridge v3.0 is a milestone version. Compared with v2.0, we have made a lot of 
 
    ```groovy
    dependencies {
-       compile 'com.github.wendux:DSBridge-Android:master-SNAPSHOT'
-       //compile 'com.github.wendux:DSBridge-Android:2.0-SNAPSHOT'
-       //support the x5 browser core of tencent
-   	//compile 'com.github.wendux:DSBridge-Android:x5-SNAPSHOT'
+      compile 'com.github.wendux:DSBridge-Android:x5-3.0-SNAPSHOT'
    }
    ```
 

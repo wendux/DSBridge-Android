@@ -1,6 +1,5 @@
 package wendu.dsbridge;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -18,20 +17,21 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.ConsoleMessage;
-import android.webkit.CookieManager;
-import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
-import android.webkit.JsPromptResult;
-import android.webkit.JsResult;
-import android.webkit.PermissionRequest;
-import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebStorage;
-import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+
+import com.tencent.smtt.export.external.interfaces.ConsoleMessage;
+import com.tencent.smtt.export.external.interfaces.GeolocationPermissionsCallback;
+import com.tencent.smtt.export.external.interfaces.IX5WebChromeClient;
+import com.tencent.smtt.export.external.interfaces.JsPromptResult;
+import com.tencent.smtt.export.external.interfaces.JsResult;
+import com.tencent.smtt.sdk.CookieManager;
+import com.tencent.smtt.sdk.ValueCallback;
+import com.tencent.smtt.sdk.WebChromeClient;
+import com.tencent.smtt.sdk.WebSettings;
+import com.tencent.smtt.sdk.WebStorage;
+import com.tencent.smtt.sdk.WebView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW;
 
 
 /**
@@ -67,6 +69,7 @@ public class DWebView extends WebView {
     private volatile boolean alertboxBlock = true;
     private JavascriptCloseWindowListener javascriptCloseWindowListener = null;
     private ArrayList<CallInfo> callInfoList = new ArrayList<>();
+
 
     class MyHandler extends Handler {
         //  Using WeakReference to avoid memory leak
@@ -172,7 +175,7 @@ public class DWebView extends WebView {
         settings.setDomStorageEnabled(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             CookieManager.getInstance().setAcceptThirdPartyCookies(this, true);
-            settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+            settings.setMixedContentMode(MIXED_CONTENT_ALWAYS_ALLOW);
         }
         settings.setAllowFileAccess(false);
         settings.setAppCacheEnabled(false);
@@ -610,7 +613,7 @@ public class DWebView extends WebView {
         }
 
         @Override
-        public void onShowCustomView(View view, CustomViewCallback callback) {
+        public void onShowCustomView(View view, IX5WebChromeClient.CustomViewCallback callback) {
             if (webChromeClient != null) {
                 webChromeClient.onShowCustomView(view, callback);
             } else {
@@ -620,7 +623,7 @@ public class DWebView extends WebView {
 
         @Override
         public void onShowCustomView(View view, int requestedOrientation,
-                                     CustomViewCallback callback) {
+                                     IX5WebChromeClient.CustomViewCallback callback) {
             if (webChromeClient != null) {
                 webChromeClient.onShowCustomView(view, requestedOrientation, callback);
             } else {
@@ -664,6 +667,7 @@ public class DWebView extends WebView {
                 super.onCloseWindow(window);
             }
         }
+
 
         @Override
         public boolean onJsAlert(WebView view, String url, final String message, final JsResult result) {
@@ -804,7 +808,7 @@ public class DWebView extends WebView {
         }
 
         @Override
-        public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+        public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissionsCallback  callback) {
             if (webChromeClient != null) {
                 webChromeClient.onGeolocationPermissionsShowPrompt(origin, callback);
             } else {
@@ -822,26 +826,6 @@ public class DWebView extends WebView {
         }
 
 
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        @Override
-        public void onPermissionRequest(PermissionRequest request) {
-            if (webChromeClient != null) {
-                webChromeClient.onPermissionRequest(request);
-            } else {
-                super.onPermissionRequest(request);
-            }
-        }
-
-
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        @Override
-        public void onPermissionRequestCanceled(PermissionRequest request) {
-            if (webChromeClient != null) {
-                webChromeClient.onPermissionRequestCanceled(request);
-            } else {
-                super.onPermissionRequestCanceled(request);
-            }
-        }
 
         @Override
         public boolean onJsTimeout() {
@@ -851,14 +835,6 @@ public class DWebView extends WebView {
             return super.onJsTimeout();
         }
 
-        @Override
-        public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-            if (webChromeClient != null) {
-                webChromeClient.onConsoleMessage(message, lineNumber, sourceID);
-            } else {
-                super.onConsoleMessage(message, lineNumber, sourceID);
-            }
-        }
 
         @Override
         public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
@@ -894,8 +870,15 @@ public class DWebView extends WebView {
             }
         }
 
+        @Override
+        public void openFileChooser(ValueCallback<Uri> valueCallback, String s, String s1) {
+            if (webChromeClient != null) {
+                webChromeClient.openFileChooser(valueCallback,s,s1);
+                return;
+            }
+            super.openFileChooser(valueCallback, s, s1);
+        }
 
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
                                          FileChooserParams fileChooserParams) {
