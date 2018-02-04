@@ -71,13 +71,13 @@ To use a dsBridge in your own project:
 
        //for asynchronous invocation
        @JavascriptInterface
-       public void testAsyn(Object msg, CompletionHandler handler) {
+       public void testAsyn(Object msg, CompletionHandler<String> handler) {
            handler.complete(msg+" [ asyn call]");
        }
    }
    ```
 
-   For security reason, Java APIs must be with *"@JavascriptInterface"* annotation . 
+   For security reason, Java APIs must be with "@JavascriptInterface" annotation .
 
 2. Add API object to DWebView .
 
