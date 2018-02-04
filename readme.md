@@ -76,7 +76,7 @@ To use a dsBridge in your own project:
    }
    ```
 
-   For security reason, Java APIs must be with *"@JavascriptInterface"* annotation . 
+   For security reason, Java APIs must be with "@JavascriptInterface" annotation .
 
 2. Add API object to DWebView .
 

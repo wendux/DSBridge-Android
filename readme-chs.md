@@ -85,7 +85,7 @@ DSBridge v3.0 是一个里程碑版本，和v2.0相比，有许多变化，需�
    }
    ```
 
-   可以看到，DSBridge正式通过类的方式集中、统一地管理API。由于安全原因，所有Java API 必须有*"@JavascriptInterface"* 标注。
+   可以看到，DSBridge正式通过类的方式集中、统一地管理API。由于安全原因，所有Java API 必须有"@JavascriptInterface" 标注。
 
 2. 添加API类实例到 DWebView .
 
