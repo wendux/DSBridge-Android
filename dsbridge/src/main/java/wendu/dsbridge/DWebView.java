@@ -501,7 +501,7 @@ public class DWebView extends WebView {
         evaluateJavascript(String.format("window._handleMessageFromNative(%s)", info.toString()));
     }
 
-    public synchronized void callHandler(String method, Object[] args, final OnReturnValue handler) {
+    public synchronized <T>  void callHandler(String method, Object[] args, final OnReturnValue<T> handler) {
 
         CallInfo callInfo = new CallInfo(method, callID, args);
         if (handler != null) {
@@ -516,10 +516,10 @@ public class DWebView extends WebView {
 
     }
 
-    public void callHandler(String method, Object[] args) {
+    public  void callHandler(String method, Object[] args) {
         callHandler(method, args, null);
     }
-    public void callHandler(String method,  OnReturnValue handler){
+    public <T> void callHandler(String method,  OnReturnValue<T> handler){
         callHandler(method, null, handler);
     }
 
@@ -895,6 +895,7 @@ public class DWebView extends WebView {
         }
 
 
+        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
                                          FileChooserParams fileChooserParams) {

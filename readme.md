@@ -4,11 +4,27 @@
 [![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) 
 >Modern cross-platform JavaScript bridge, through which you can invoke each other's functions synchronously or asynchronously between JavaScript and native applications.
 
+Chinese documentation [中文文档](https://github.com/wendux/DSBridge-Android/blob/master/readme-chs.md)       
+DSBridge-IOS：https://github.com/wendux/DSBridge-IOS       
+
 ### Notice
 
-DSBridge v3.0 is a milestone. Compared with v2.0.X, we have made a lot of changes. Note that V3.0 is **incompatible** with V2.0, but v2.0 will continue to maintain. If you are a new user, use >=v3.0.
+DSBridge v3.0 is a milestone version. Compared with v2.0, we have made a lot of changes. Note that v3.0 is **incompatible** with v2.0, but v2.0 will continue to maintain. If you are a new user, use >=v3.0.
 
 [DSBridge v3.0.0 change list](https://github.com/wendux/DSBridge-Android/issues/31)  
+
+## Features
+
+1. The three ends of Android, IOS and Javascript are easy to use, light and powerful, safe and strong
+2. Both synchronous and asynchronous calls are supported
+3. Support **API Object**, which centrally implements  APIs in a Java Class or a Javascript object 
+4. Support API namespace
+5. Support debug mode
+6. Support the test of whether API exists
+7. Support **Progress Callback**: one call, multiple returns
+8. Support event listener for Javascript to close the page
+9. Support Modal and Modeless popup box for javascript
+10. Support the X5 webcore of Tencent
 
 ## Installation
 
@@ -29,8 +45,8 @@ DSBridge v3.0 is a milestone. Compared with v2.0.X, we have made a lot of change
    dependencies {
        compile 'com.github.wendux:DSBridge-Android:master-SNAPSHOT'
        //compile 'com.github.wendux:DSBridge-Android:2.0-SNAPSHOT'
-   	 //support the x5 browser core of tencent
-   	 //compile 'com.github.wendux:DSBridge-Android:x5-SNAPSHOT'
+   	   //support the x5 browser core of tencent
+   	   //compile 'com.github.wendux:DSBridge-Android:x5-SNAPSHOT'
    }
    ```
 
@@ -60,7 +76,7 @@ To use a dsBridge in your own project:
    }
    ```
 
-   For security reason, Java APIs must be with "@JavascriptInterface" annotation . 
+   For security reason, Java APIs must be with *"@JavascriptInterface"* annotation . 
 
 2. Add API object to DWebView .
 
@@ -140,9 +156,51 @@ In debug mode, some errors will be prompted by a popup dialog , and the exceptio
 DWebView.setWebContentsDebuggingEnabled(true)
 ```
 
+
+
+## Progress Callback
+
+Normally, when a API is called to end, it returns a result, which corresponds one by one. But sometimes a call need to repeatedly return multipule times,  Suppose that on the Native side, there is  a API to download the file, in the process of downloading, it will send the progress information to  Javascript  many times, then Javascript will  display  the progress information on the H5 page. Oh...You will find it is difficult to achieve this function. Fortunately, DSBridge supports **Progress Callback**. You can be very simple and convenient to implement a call that needs to be returned many times. Here's an example of a countdown：
+
+In Java 
+
+```java
+@JavascriptInterface
+public void callProgress(Object args, final CompletionHandler<Integer> handler) {
+    new CountDownTimer(11000, 1000) {
+        int i=10;
+        @Override
+        public void onTick(long millisUntilFinished) {
+            //setProgressData can be called many times util complete be called.
+            handler.setProgressData((i--));
+        }
+        @Override
+        public void onFinish() {
+           //complete the js invocation with data; 
+           //handler will be invalid when complete is called
+            handler.complete();
+        }
+    }.start();
+}
+```
+
+In Javascript
+
+```javascript
+dsBridge.call("callProgress", function (value) {
+    document.getElementById("progress").innerText = value
+})
+```
+
+For the complete sample code, please refer to the demo project.
+
+
+
 ## Javascript popup box
 
-For Javascript popup box functions (alert/confirm/prompt), DSBridge has implemented them  all  by default, if you want to custom them, override the corresponding  callback in WebChromeClient .
+For Javascript popup box functions (alert/confirm/prompt), DSBridge has implemented them  all  by default, if you want to custom them, override the corresponding  callback in WebChromeClient . The default dialog box  implemented by DSBridge is modal. This will block the UI thread. If you need modeless, please refer to `dwebview.disableJavascriptDialogBlock (bool disable)`.
+
+
 
 ## DWebView
 
@@ -441,7 +499,7 @@ As we all know, In  browser, AJax request are restricted by same-origin policy, 
 
 Another typical scene is in the hybrid App, [Fly.js](https://github.com/wendux/fly)  will forward all requests to Native, then, the unified request management, cookie management, certificate verification, request filtering and so on are carried out on Native. 
 
-For specific examples, please refer to demo.
+For the complete sample code, please refer to the demo project.
 
 ## Finally
 

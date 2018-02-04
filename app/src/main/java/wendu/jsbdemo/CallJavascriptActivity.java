@@ -38,6 +38,7 @@ public class CallJavascriptActivity extends AppCompatActivity implements View.On
         dWebView= getView(R.id.webview);
         dWebView.loadUrl("file:///android_asset/native-call-js.html");
 
+
     }
 
     void showToast(Object o) {
