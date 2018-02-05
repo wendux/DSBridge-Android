@@ -55,7 +55,7 @@ public class JsApi{
             @Override
             public void onFinish() {
                 //complete the js invocation with data; handler will be invalid when complete is called
-                handler.complete();
+                handler.complete(0);
 
             }
         }.start();
