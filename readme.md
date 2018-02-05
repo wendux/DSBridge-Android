@@ -1,7 +1,7 @@
 
 # DSBridge
 
-[![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=3.0)](https://travis-ci.org/wendux/DSBridge-Android/tree/3.0)
+[![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=3.0)](https://travis-ci.org/wendux/DSBridge-Android)
 >Modern cross-platform JavaScript bridge, through which you can invoke each other's functions synchronously or asynchronously between JavaScript and native applications.
 
 Chinese documentation [中文文档](https://github.com/wendux/DSBridge-Android/blob/master/readme-chs.md)       
