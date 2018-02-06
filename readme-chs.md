@@ -1,8 +1,13 @@
 
 # DSBridge
 
-[![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=master)](https://travis-ci.org/wendux/DSBridge-Android)
-> 三端易用的现代跨平台的 Javascript bridge， 通过它，你可以在Javascript和原生之间同步或异步的调用彼此的函数.
+
+[![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android)  ![language](https://img.shields.io/badge/language-Java-yellow.svg)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=master)](https://travis-ci.org/wendux/DSBridge-Android)
+[![GitHub last commit](https://img.shields.io/github/last-commit/google/skia.svg?color=blue)]()
+![](https://img.shields.io/badge/minSdkVersion-17-yellow.svg)
+[![x5](https://img.shields.io/badge/support%20x5-yes-blue.svg)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
+
+> 三端易用的现代跨平台 Javascript bridge， 通过它，你可以在Javascript和原生之间同步或异步的调用彼此的函数.
 >
 
 ### 注意
@@ -33,7 +38,7 @@ DSBridge v3.0 是一个里程碑版本，和v2.0相比，有许多变化，需�
 
 10. 支持腾讯X5内核
 
-    ​
+  ​
 
 ## 安装
 
