@@ -1,11 +1,18 @@
 
-# DSBridge
+# DSBridge for Android
 
-[![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=3.0)](https://travis-ci.org/wendux/DSBridge-Android)
+![dsBridge](https://github.com/wendux/DSBridge-IOS/raw/master/img/dsbridge.png)
+
+[![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android)  ![language](https://img.shields.io/badge/language-Java-yellow.svg)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=master)](https://travis-ci.org/wendux/DSBridge-Android)
+[![GitHub last commit](https://img.shields.io/github/last-commit/google/skia.svg?color=blue)]()
+![](https://img.shields.io/badge/minSdkVersion-17-yellow.svg)
+[![x5](https://img.shields.io/badge/support%20x5-yes-blue.svg)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
+
 >Modern cross-platform JavaScript bridge, through which you can invoke each other's functions synchronously or asynchronously between JavaScript and native applications.
 
 Chinese documentation [中文文档](https://github.com/wendux/DSBridge-Android/blob/master/readme-chs.md)       
 DSBridge-IOS：https://github.com/wendux/DSBridge-IOS       
+[Tencent x5 webcore support (minSdkVersion 14)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
 
 ### Notice
 
@@ -43,9 +50,10 @@ DSBridge v3.0 is a milestone version. Compared with v2.0, we have made a lot of 
 
    ```groovy
    dependencies {
+    compile 'com.github.wendux:DSBridge-Android:master-SNAPSHOT'
     //compile 'com.github.wendux:DSBridge-Android:3.0-SNAPSHOT'
     //support the x5 browser core of Tencent
-   	//compile 'com.github.wendux:DSBridge-Android:x5-3.0-SNAPSHOT'
+    //compile 'com.github.wendux:DSBridge-Android:x5-3.0-SNAPSHOT'
    }
    ```
 
