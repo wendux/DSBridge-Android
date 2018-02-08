@@ -1,6 +1,6 @@
+# DSBridge for Android
 
-# DSBridge
-
+![dsBridge](https://github.com/wendux/DSBridge-IOS/raw/master/img/dsbridge.png)
 
 [![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android)  ![language](https://img.shields.io/badge/language-Java-yellow.svg)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=master)](https://travis-ci.org/wendux/DSBridge-Android)
 [![GitHub last commit](https://img.shields.io/github/last-commit/google/skia.svg?color=blue)]()
