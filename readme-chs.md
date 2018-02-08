@@ -15,6 +15,8 @@
 DSBridge v3.0 是一个里程碑版本，和v2.0相比，有许多变化，需要注意的是v3.0**不兼容**之前版本，但是我们也会继续维护v2.0分支，所以，如果你是v2.0的使用者，请放心继续使用v2.0，如果你是新用户，请使用>=v3.0.
 
 [DSBridge v3.0.0 更新列表](https://github.com/wendux/DSBridge-Android/issues/31)  
+腾讯X5内核支持（minSdkVersion 14）：https://github.com/wendux/DSBridge-Android/tree/x5-3.0
+
 
 ## 特性
 

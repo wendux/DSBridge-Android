@@ -10,6 +10,7 @@
 
 Chinese documentation [中文文档](https://github.com/wendux/DSBridge-Android/blob/master/readme-chs.md)       
 DSBridge-IOS：https://github.com/wendux/DSBridge-IOS       
+[Tencent x5 webcore support (minSdkVersion 14)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
 
 ### Notice
 
