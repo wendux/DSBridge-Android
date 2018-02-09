@@ -918,6 +918,17 @@ public class DWebView extends WebView {
             }
             return super.onShowFileChooser(webView, filePathCallback, fileChooserParams);
         }
+
+
+
+        @Keep
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+        public void openFileChooser(ValueCallback valueCallback, String acceptType) {
+            if(webChromeClient instanceof FileChooser){
+                ((FileChooser)webChromeClient).openFileChooser(valueCallback,acceptType);
+            }
+        }
+
     };
 
     @Override
