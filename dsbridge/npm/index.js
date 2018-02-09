@@ -13,12 +13,10 @@ var bridge = {
             arg['_dscbstub'] = cbName;
         }
         arg = JSON.stringify(arg)
-
-        if (window._dswk) { //IOS DWKWebView
-            ret = prompt(window._dswk + method, arg);
-        } else {
-            // Android
-           ret = _dsbridge.call(method, arg);
+        if(window._dsbridge){
+           ret=  _dsbridge.call(method, arg)
+        }else{
+           ret = prompt("_dsbridge=" + method, arg);
         }
        return  JSON.parse(ret).data
     },

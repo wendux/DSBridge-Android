@@ -5,7 +5,7 @@
 
 [![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android)  ![language](https://img.shields.io/badge/language-Java-yellow.svg)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=x5-3.0)](https://travis-ci.org/wendux/DSBridge-Android)
 [![GitHub last commit](https://img.shields.io/github/last-commit/google/skia.svg?color=blue)]()
-![minSdkVersion](https://img.shields.io/badge/minSdkVersion-14-yellow.svg)
+![minSdkVersion](https://img.shields.io/badge/minSdkVersion-11-yellow.svg)
 [![x5](https://img.shields.io/badge/webcore-tencent%20X5-blue.svg)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
 
 > 三端易用的现代跨平台的 Javascript bridge， 通过它，你可以在Javascript和原生之间同步或异步的调用彼此的函数.
@@ -42,7 +42,7 @@ DSBridge v3.0 是一个里程碑版本，和v2.0相比，有许多变化，需�
 
 10. 支持腾讯X5内核
 
-    ​
+  ​
 
 ## 安装
 
@@ -108,9 +108,9 @@ DSBridge v3.0 是一个里程碑版本，和v2.0相比，有许多变化，需�
 
      ```javascript
      //cdn方式引入初始化代码(中国地区慢，建议下载到本地工程)
-     //<script src="https://unpkg.com/dsbridge@3.0.6/dist/dsbridge.js"> </script>
+     //<script src="https://unpkg.com/dsbridge@3.0.7/dist/dsbridge.js"> </script>
      //npm方式安装初始化代码
-     //npm install dsbridge@3.0.6
+     //npm install dsbridge@3.0.7
      var dsBridge=require("dsbridge")
      ```
 
@@ -219,6 +219,12 @@ dsBridge.call("callProgress", function (value) {
 ## Javascript 弹出框
 
 DSBridge已经实现了 Javascript的弹出框函数(alert/confirm/prompt)，如果你想自定义它们，通过`WebChromeClient`重写相关函数即可。DSBridge实现的对话框默认设置是模态的，这会挂起UI线程，如果你需要非模态，请参考`dwebview.disableJavascriptDialogBlock(bool disable)` 。
+
+
+
+## 安全
+
+在Android 4.2(API17)之前 `webview.addJavascriptInterface` 存在安全漏洞，DSBridge内部在4.2以下的设备上不会使用`webview.addJavascriptInterface`，而是通过其它方式通信，在4.2之后会使用 `webview.addJavascriptInterface` 。同时，为了防止Javascript调用未授权的原生函数，所有Java API 必须有"@JavascriptInterface" 标注，所以您可以放心使用DSBridge。
 
 
 

@@ -1,5 +1,6 @@
 package wendu.dsbridge;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -69,6 +70,7 @@ public class DWebView extends WebView {
     private volatile boolean alertboxBlock = true;
     private JavascriptCloseWindowListener javascriptCloseWindowListener = null;
     private ArrayList<CallInfo> callInfoList = new ArrayList<>();
+    private InnerJavascriptInterface innerJavascriptInterface=new InnerJavascriptInterface();
 
 
     class MyHandler extends Handler {
@@ -136,6 +138,138 @@ public class DWebView extends WebView {
         }
     }
 
+    class  InnerJavascriptInterface{
+
+        private void PrintDebugInfo(String error) {
+            Log.d(LOG_TAG, error);
+            if (isDebug) {
+                evaluateJavascript(String.format("alert('%s')", "DEBUG ERR MSG:\\n" + error.replaceAll("\\'", "\\\\'")));
+            }
+        }
+
+        @Keep
+        @JavascriptInterface
+        public String call(String methodName, String argStr) {
+            String error = "Js bridge  called, but can't find a corresponded " +
+                    "JavascriptInterface object , please check your code!";
+            String[] nameStr = parseNamespace(methodName.trim());
+            methodName = nameStr[1];
+            Object jsb = javaScriptNamespaceInterfaces.get(nameStr[0]);
+            JSONObject ret=new JSONObject();
+            try {
+                ret.put("code",-1);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if (jsb == null) {
+                PrintDebugInfo(error);
+                return ret.toString();
+            }
+            Object arg;
+            Method method = null;
+            String callback = null;
+
+            try {
+                JSONObject args = new JSONObject(argStr);
+                if (args.has("_dscbstub")) {
+                    callback = args.getString("_dscbstub");
+                }
+                arg=args.get("data");
+            } catch (JSONException e) {
+                error = String.format("The argument of \"%s\" must be a JSON object string!", methodName);
+                PrintDebugInfo(error);
+                e.printStackTrace();
+                return ret.toString();
+            }
+
+
+            Class<?> cls = jsb.getClass();
+            boolean asyn = false;
+            try {
+                method = cls.getDeclaredMethod(methodName,
+                        new Class[]{Object.class, CompletionHandler.class});
+                asyn = true;
+            } catch (Exception e) {
+                try {
+                    method = cls.getDeclaredMethod(methodName, new Class[]{Object.class});
+                } catch (Exception ex) {
+
+                }
+            }
+
+            if (method == null) {
+                error = "Not find method \"" + methodName + "\" implementation! please check if the  signature or namespace of the method is right ";
+                PrintDebugInfo(error);
+                return ret.toString();
+            }
+
+            JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
+            if (annotation == null) {
+                error = "Method " + methodName + " is not invoked, since  " +
+                        "it is not declared with JavascriptInterface annotation! ";
+                PrintDebugInfo(error);
+                return ret.toString();
+            }
+
+            Object retData ;
+            method.setAccessible(true);
+            try {
+                if (asyn) {
+                    final String cb = callback;
+                    method.invoke(jsb, arg, new CompletionHandler() {
+
+                        @Override
+                        public void complete(Object retValue) {
+                            complete(retValue, true);
+                        }
+
+                        @Override
+                        public void complete() {
+                            complete(null, true);
+                        }
+
+                        @Override
+                        public void setProgressData(Object value) {
+                            complete(value, false);
+                        }
+
+                        private void complete(Object retValue, boolean complete) {
+                            try {
+                                JSONObject ret=new JSONObject();
+                                ret.put("code",0);
+                                ret.put("data",retValue);
+                                //retValue = URLEncoder.encode(ret.toString(), "UTF-8").replaceAll("\\+", "%20");
+                                if (cb != null) {
+                                    //String script = String.format("%s(JSON.parse(decodeURIComponent(\"%s\")).data);", cb, retValue);
+                                    String script = String.format("%s(%s.data);", cb, ret.toString());
+                                    if (complete) {
+                                        script += "delete window." + cb;
+                                    }
+                                    evaluateJavascript(script);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                } else {
+                    retData = method.invoke(jsb, arg);
+                    ret.put("code",0);
+                    ret.put("data",retData);
+                    return ret.toString();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                error = String.format("Call failed：The parameter of \"%s\" in Java is invalid.", methodName);
+                PrintDebugInfo(error);
+                return  ret.toString();
+            }
+            return ret.toString();
+        }
+
+    }
+
+
     Map<Integer, OnReturnValue> handlerMap = new HashMap<>();
 
     public interface JavascriptCloseWindowListener {
@@ -143,6 +277,16 @@ public class DWebView extends WebView {
          * @return If true, close the current activity, otherwise, do nothing.
          */
         boolean onClose();
+    }
+
+    @Deprecated
+    public interface FileChooser{
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+        void openFileChooser(ValueCallback valueCallback, String acceptType);
+
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+        void openFileChooser(ValueCallback<Uri> valueCallback,
+                             String acceptType, String capture) ;
     }
 
     public DWebView(Context context, AttributeSet attrs) {
@@ -187,132 +331,9 @@ public class DWebView extends WebView {
         settings.setUseWideViewPort(true);
         super.setWebChromeClient(mWebChromeClient);
         addInternalJavascriptObject();
-        super.addJavascriptInterface(new Object() {
-
-            private void PrintDebugInfo(String error) {
-                Log.d(LOG_TAG, error);
-                if (isDebug) {
-                    evaluateJavascript(String.format("alert('%s')", "DEBUG ERR MSG:\\n" + error.replaceAll("\\'", "\\\\'")));
-                }
-            }
-
-            @Keep
-            @JavascriptInterface
-            public String call(String methodName, String argStr) throws JSONException {
-                String error = "Js bridge  called, but can't find a corresponded " +
-                        "JavascriptInterface object , please check your code!";
-                String[] nameStr = parseNamespace(methodName.trim());
-                methodName = nameStr[1];
-                Object jsb = javaScriptNamespaceInterfaces.get(nameStr[0]);
-                JSONObject ret=new JSONObject();
-                ret.put("code",-1);
-                if (jsb == null) {
-                    PrintDebugInfo(error);
-                    return ret.toString();
-                }
-                Object arg;
-                Method method = null;
-                String callback = null;
-
-                try {
-                    JSONObject args = new JSONObject(argStr);
-                    if (args.has("_dscbstub")) {
-                        callback = args.getString("_dscbstub");
-                    }
-                    arg=args.get("data");
-                } catch (JSONException e) {
-                    error = String.format("The argument of \"%s\" must be a JSON object string!", methodName);
-                    PrintDebugInfo(error);
-                    e.printStackTrace();
-                    return ret.toString();
-                }
-
-
-                Class<?> cls = jsb.getClass();
-                boolean asyn = false;
-                try {
-                    method = cls.getDeclaredMethod(methodName,
-                            new Class[]{Object.class, CompletionHandler.class});
-                    asyn = true;
-                } catch (Exception e) {
-                    try {
-                        method = cls.getDeclaredMethod(methodName, new Class[]{Object.class});
-                    } catch (Exception ex) {
-
-                    }
-                }
-
-                if (method == null) {
-                    error = "Not find method \"" + methodName + "\" implementation! please check if the  signature or namespace of the method is right ";
-                    PrintDebugInfo(error);
-                    return ret.toString();
-                }
-
-                JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
-                if (annotation == null) {
-                    error = "Method " + methodName + " is not invoked, since  " +
-                            "it is not declared with JavascriptInterface annotation! ";
-                    PrintDebugInfo(error);
-                    return ret.toString();
-                }
-
-                Object retData ;
-                method.setAccessible(true);
-                try {
-                    if (asyn) {
-                        final String cb = callback;
-                        method.invoke(jsb, arg, new CompletionHandler() {
-
-                            @Override
-                            public void complete(Object retValue) {
-                                complete(retValue, true);
-                            }
-
-                            @Override
-                            public void complete() {
-                                complete(null, true);
-                            }
-
-                            @Override
-                            public void setProgressData(Object value) {
-                                complete(value, false);
-                            }
-
-                            private void complete(Object retValue, boolean complete) {
-                                try {
-                                    JSONObject ret=new JSONObject();
-                                    ret.put("code",0);
-                                    ret.put("data",retValue);
-                                    //retValue = URLEncoder.encode(ret.toString(), "UTF-8").replaceAll("\\+", "%20");
-                                    if (cb != null) {
-                                        //String script = String.format("%s(JSON.parse(decodeURIComponent(\"%s\")).data);", cb, retValue);
-                                        String script = String.format("%s(%s.data);", cb, ret.toString());
-                                        if (complete) {
-                                            script += "delete window." + cb;
-                                        }
-                                        evaluateJavascript(script);
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                    } else {
-                        retData = method.invoke(jsb, arg);
-                        ret.put("code",0);
-                        ret.put("data",retData);
-                        return ret.toString();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    error = String.format("Call failed：The parameter of \"%s\" in Java is invalid.", methodName);
-                    PrintDebugInfo(error);
-                    return  ret.toString();
-                }
-                return ret.toString();
-            }
-
-        }, BRIDGE_NAME);
+        if(Build.VERSION.SDK_INT>Build.VERSION_CODES.JELLY_BEAN) {
+            super.addJavascriptInterface(innerJavascriptInterface, BRIDGE_NAME);
+        }
 
     }
 
@@ -671,6 +692,7 @@ public class DWebView extends WebView {
 
         @Override
         public boolean onJsAlert(WebView view, String url, final String message, final JsResult result) {
+
             if (!alertboxBlock) {
                 result.confirm();
             }
@@ -731,6 +753,15 @@ public class DWebView extends WebView {
         @Override
         public boolean onJsPrompt(WebView view, String url, final String message,
                                   String defaultValue, final JsPromptResult result) {
+
+            if(Build.VERSION.SDK_INT<=Build.VERSION_CODES.JELLY_BEAN) {
+                String prefix="_dsbridge=";
+                if(message.startsWith(prefix)){
+                    result.confirm(innerJavascriptInterface.call(message.substring(prefix.length()),defaultValue));
+                    return true;
+                }
+            }
+
             if (!alertboxBlock) {
                 result.confirm();
             }

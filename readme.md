@@ -5,7 +5,7 @@
 
 [![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android)  ![language](https://img.shields.io/badge/language-Java-yellow.svg)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=x5-3.0)](https://travis-ci.org/wendux/DSBridge-Android)
 [![GitHub last commit](https://img.shields.io/github/last-commit/google/skia.svg?color=blue)]()
-![minSdkVersion](https://img.shields.io/badge/minSdkVersion-14-yellow.svg)
+![minSdkVersion](https://img.shields.io/badge/minSdkVersion-11-yellow.svg)
 [![x5](https://img.shields.io/badge/webcore-tencent%20X5-blue.svg)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
 
 >Modern cross-platform JavaScript bridge, through which you can invoke each other's functions synchronously or asynchronously between JavaScript and native applications.
@@ -100,9 +100,9 @@ To use  dsBridge in your own project:
 
      ```javascript
      //cdn
-     //<script src="https://unpkg.com/dsbridge@3.0.6/dist/dsbridge.js"> </script>
+     //<script src="https://unpkg.com/dsbridge@3.0.7/dist/dsbridge.js"> </script>
      //npm
-     //npm install dsbridge@3.0.6
+     //npm install dsbridge@3.0.7
      var dsBridge=require("dsbridge")
      ```
 
@@ -206,6 +206,12 @@ For the complete sample code, please refer to the demo project.
 ## Javascript popup box
 
 For Javascript popup box functions (alert/confirm/prompt), DSBridge has implemented them  all  by default, if you want to custom them, override the corresponding  callback in WebChromeClient . The default dialog box  implemented by DSBridge is modal. This will block the UI thread. If you need modeless, please refer to `dwebview.disableJavascriptDialogBlock (bool disable)`.
+
+
+
+## Security
+
+Before Android 4.2 (API 17), `webview.addJavascriptInterface` has security vulnerabilities, and DSBridge doesn't use it under 4.2 of the devices. Meanwhile, in order to prevent Javascript from calling unauthorized native functions, all Java APIs must be annotated with "@JavascriptInterface" , so you can use DSBridge safely.
 
 
 
