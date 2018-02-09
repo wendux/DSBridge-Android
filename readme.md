@@ -8,14 +8,14 @@
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php)
 [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=3.0)](https://travis-ci.org/wendux/DSBridge-Android)
 [![GitHub last commit](https://img.shields.io/github/last-commit/google/skia.svg?color=blue)]()
-![](https://img.shields.io/badge/minSdkVersion-17-yellow.svg)
+![](https://img.shields.io/badge/minSdkVersion-11-yellow.svg)
 [![x5](https://img.shields.io/badge/support%20x5-yes-blue.svg)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
 
 >Modern cross-platform JavaScript bridge, through which you can invoke each other's functions synchronously or asynchronously between JavaScript and native applications.
 
 Chinese documentation [中文文档](https://github.com/wendux/DSBridge-Android/blob/master/readme-chs.md)       
 DSBridge-IOS：https://github.com/wendux/DSBridge-IOS       
-[Tencent x5 webcore support (minSdkVersion 14)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
+[Tencent x5 webcore support](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
 
 ### Notice
 
@@ -25,7 +25,7 @@ DSBridge v3.0 is a milestone version. Compared with v2.0, we have made a lot of 
 
 ## Features
 
-1. The three ends of Android, IOS and Javascript are easy to use, light and powerful, safe and strong
+1. The three ends of Android, IOS and Javascript are easy to use, light and powerful, secure and strong
 2. Both synchronous and asynchronous calls are supported
 3. Support **API Object**, which centrally implements  APIs in a Java Class or a Javascript object 
 4. Support API namespace
@@ -100,9 +100,9 @@ To use  dsBridge in your own project:
 
      ```javascript
      //cdn
-     //<script src="https://unpkg.com/dsbridge@3.0.6/dist/dsbridge.js"> </script>
+     //<script src="https://unpkg.com/dsbridge@3.0.7/dist/dsbridge.js"> </script>
      //npm
-     //npm install dsbridge@3.0.6
+     //npm install dsbridge@3.0.7
      var dsBridge=require("dsbridge")
      ```
 
@@ -208,6 +208,10 @@ For the complete sample code, please refer to the demo project.
 For Javascript popup box functions (alert/confirm/prompt), DSBridge has implemented them  all  by default, if you want to custom them, override the corresponding  callback in WebChromeClient . The default dialog box  implemented by DSBridge is modal. This will block the UI thread. If you need modeless, please refer to `dwebview.disableJavascriptDialogBlock (bool disable)`.
 
 
+
+## Security
+
+Before Android 4.2 (API 17), `webview.addJavascriptInterface` has security vulnerabilities, and DSBridge doesn't use it  under 4.2 of the devices. Meanwhile, in order to prevent Javascript from calling unauthorized native functions, all Java APIs must be annotated with "@JavascriptInterface" , so you can use DSBridge safely.
 
 ## DWebView
 
