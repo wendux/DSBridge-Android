@@ -84,6 +84,17 @@ public class DWebView extends WebView {
             }
         }
     }
+
+    @Deprecated
+    public interface FileChooser{
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+        void openFileChooser(ValueCallback valueCallback, String acceptType);
+
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+        void openFileChooser(ValueCallback<Uri> valueCallback,
+                             String acceptType, String capture) ;
+    }
+
     class RequestInfo {
         String url;
         Map<String, String> headers;
@@ -92,6 +103,7 @@ public class DWebView extends WebView {
             this.headers=additionalHttpHeaders;
         }
     }
+
 
     Map<Integer, OnReturnValue> handlerMap = new HashMap<>();
 
@@ -549,6 +561,14 @@ public class DWebView extends WebView {
                 return webChromeClient.onShowFileChooser(webView, filePathCallback, fileChooserParams);
             }
             return super.onShowFileChooser(webView, filePathCallback, fileChooserParams);
+        }
+
+        @Keep
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+        public void openFileChooser(ValueCallback valueCallback, String acceptType) {
+            if(webChromeClient instanceof FileChooser){
+                ((FileChooser)webChromeClient).openFileChooser(valueCallback,acceptType);
+            }
         }
     };
 
