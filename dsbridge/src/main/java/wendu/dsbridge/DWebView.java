@@ -90,6 +90,16 @@ public class DWebView extends WebView {
         }
     }
 
+    @Deprecated
+    public interface FileChooser{
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+        void openFileChooser(ValueCallback valueCallback, String acceptType);
+
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+        void openFileChooser(ValueCallback<Uri> valueCallback,
+                             String acceptType, String capture) ;
+    }
+
     Map<Integer, OnReturnValue> handlerMap = new HashMap<>();
 
     public DWebView(Context context, AttributeSet attrs) {
@@ -556,6 +566,26 @@ public class DWebView extends WebView {
             }
             return super.onShowFileChooser(webView, filePathCallback, fileChooserParams);
         }
+
+        @Keep
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+        public void openFileChooser(ValueCallback valueCallback, String acceptType) {
+            if(webChromeClient instanceof FileChooser){
+                ((FileChooser)webChromeClient).openFileChooser(valueCallback,acceptType);
+            }
+        }
+
+
+        @Keep
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+        public void openFileChooser(ValueCallback<Uri> valueCallback,
+                                    String acceptType, String capture) {
+            if(webChromeClient instanceof FileChooser){
+                ((FileChooser)webChromeClient).openFileChooser(valueCallback,acceptType,capture);
+            }
+        }
+
+
     };
     private void injectJs() {
         evaluateJavascript("function getJsBridge(){window._dsf=window._dsf||{};return{call:function(b,a,c){\"function\"==typeof a&&(c=a,a={});if(\"function\"==typeof c){window.dscb=window.dscb||0;var d=\"dscb\"+window.dscb++;window[d]=c;a._dscbstub=d}a=JSON.stringify(a||{});return window._dswk?prompt(window._dswk+b,a):\"function\"==typeof _dsbridge?_dsbridge(b,a):_dsbridge.call(b,a)},register:function(b,a){\"object\"==typeof b?Object.assign(window._dsf,b):window._dsf[b]=a}}}dsBridge=getJsBridge();");
