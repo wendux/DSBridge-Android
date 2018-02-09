@@ -5,7 +5,7 @@ android {
     buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "wendu.jsbdemo"
-        minSdkVersion 17
+        minSdkVersion 11
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
