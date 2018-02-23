@@ -222,13 +222,13 @@ dsBridge.call("callProgress", function (value) {
 
 ## Javascript 弹出框
 
-DSBridge已经实现了 Javascript的弹出框函数(alert/confirm/prompt)，如果你想自定义它们，通过`WebChromeClient`重写相关函数即可。DSBridge实现的对话框默认设置是模态的，这会挂起UI线程，如果你需要非模态，请参考`dwebview.disableJavascriptDialogBlock(bool disable)` 。
+DSBridge已经实现了 Javascript的弹出框函数(alert/confirm/prompt)，如果你想自定义它们，通过`WebChromeClient`重写相关函数即可。DSBridge实现的对话框默认设置是模态的，这会挂起UI线程，如果你需要非模态对话框，请参考`dwebview.disableJavascriptDialogBlock(bool disable)` 。
 
 
 
 ## 安全
 
-在Android 4.2(API17)之前 `webview.addJavascriptInterface` 存在安全漏洞，DSBridge内部在4.2以下的设备上不会使用` webview.addJavascriptInterface`，而是通过其它方式通信，在4.2之后会使用 `webview.addJavascriptInterface` 。同时，为了防止Javascript调用未授权的原生函数，所有Java API 必须有"@JavascriptInterface" 标注，所以您可以放心使用DSBridge。
+在Android 4.2(API17)之前 `webview.addJavascriptInterface` 存在安全漏洞，DSBridge内部在4.2以下的设备上不会使用` webview.addJavascriptInterface`，而是通过其它方式通信，在4.2之后会使用 `webview.addJavascriptInterface` 。同时，为了防止Javascript调用未授权的原生函数，所有Java API 必须有"@JavascriptInterface" 标注，所以在任何版本的Android系统下，您可以放心使用DSBridge！
 
 
 
@@ -327,7 +327,7 @@ dWebView.callHandler("syn.getInfo", new OnReturnValue<JSONObject>() {
 
 ##### `dwebview.disableJavascriptDialogBlock(bool disable)`
 
-**小心使用**. 如果你再javascript中调用弹窗函数(`alert`,` confirm`, 或 `prompt`)， 那么APP将会挂起，因为这些弹窗都是**模态**的，会阻塞APP主线程，此时javascript执行流也会阻塞。如果你想避免阻塞，可以通过此API禁止，禁止后，一旦 javascript中调用了这些弹窗函数，APP将弹出**非模态**对话框，并立即返回，(  `confirm` 会返回 `true`,  `prompt` 返回空字符串)。
+**小心使用**. 如果你在javascript中调用弹窗函数(`alert`,` confirm`, 或 `prompt`)， 那么APP将会挂起，因为这些弹窗都是**模态**的，会阻塞APP主线程，此时javascript执行流也会阻塞。如果你想避免阻塞，可以通过此API禁止，禁止后，一旦 javascript中调用了这些弹窗函数，APP将弹出**非模态**对话框，并立即返回，(  `confirm` 会返回 `true`,  `prompt` 返回空字符串)。
 
 禁止Javascript对话框阻塞:
 
@@ -401,7 +401,7 @@ dwebview.setJavascriptCloseWindowListener(new DWebView.JavascriptCloseWindowList
 
 ##### `dsBridge.register(methodName|namespace,function|synApiObject)`
 
-##### `dsBridge.registerAsyn(methodName|namespace,function|asyApiObject)`
+##### `dsBridge.registerAsyn(methodName|namespace,function|asynApiObject)`
 
 注册同步/异步的Javascript API. 这两个方法都有两种调用形式：
 
@@ -533,4 +533,4 @@ dsBridge.disableJavascriptDialogBlock(false)
 
 ## 最后
 
-如果你瞎换 DSBridge, 欢迎star，以便更多的人知道它, 谢谢 !
+如果你喜欢DSBridge, 欢迎star，以便更多的人知道它, 谢谢 !
