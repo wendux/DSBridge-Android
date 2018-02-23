@@ -7,7 +7,7 @@
 ![language](https://img.shields.io/badge/language-Java-yellow.svg)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php)
 [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=master)](https://travis-ci.org/wendux/DSBridge-Android)
-[![GitHub last commit](https://img.shields.io/github/last-commit/wendux/DSBridge-Android.svg?color=blue)]()
+[![GitHub last commit](https://img.shields.io/github/last-commit/wendux/DSBridge-Android.svg?color=blue)](https://github.com/wendux/DSBridge-Android/tree/master)
 ![](https://img.shields.io/badge/minSdkVersion-11-yellow.svg)
 [![x5](https://img.shields.io/badge/support%20x5-yes-blue.svg)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
 
