@@ -638,7 +638,7 @@ public class DWebView extends WebView {
             }
         }
 
-        @Override
+        @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
         public void onShowCustomView(View view, int requestedOrientation,
                                      CustomViewCallback callback) {
             if (webChromeClient != null) {
@@ -852,7 +852,6 @@ public class DWebView extends WebView {
 
 
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        @Override
         public void onPermissionRequest(PermissionRequest request) {
             if (webChromeClient != null) {
                 webChromeClient.onPermissionRequest(request);
@@ -925,7 +924,6 @@ public class DWebView extends WebView {
 
 
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        @Override
         public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
                                          FileChooserParams fileChooserParams) {
             if (webChromeClient != null) {
