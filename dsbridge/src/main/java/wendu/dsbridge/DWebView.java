@@ -199,12 +199,15 @@ public class DWebView extends WebView {
                 return ret.toString();
             }
 
-            JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
-            if (annotation == null) {
-                error = "Method " + methodName + " is not invoked, since  " +
-                        "it is not declared with JavascriptInterface annotation! ";
-                PrintDebugInfo(error);
-                return ret.toString();
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                JavascriptInterface   annotation = method.getAnnotation(JavascriptInterface.class);
+                if (annotation == null) {
+                    error = "Method " + methodName + " is not invoked, since  " +
+                            "it is not declared with JavascriptInterface annotation! ";
+                    PrintDebugInfo(error);
+                    return ret.toString();
+                }
             }
 
             Object retData ;
@@ -350,7 +353,6 @@ public class DWebView extends WebView {
             @Keep
             @JavascriptInterface
             public boolean hasNativeMethod(Object args) throws JSONException {
-
                 JSONObject jsonObject= (JSONObject) args;
                 String methodName = jsonObject.getString("name").trim();
                 String type =jsonObject.getString("type").trim();
@@ -372,12 +374,16 @@ public class DWebView extends WebView {
                         }
                     }
                     if(method!=null){
-                        JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
-                        if (annotation != null) {
-                            if("all".equals(type)||(asyn&&"asyn".equals(type)||(!asyn&&"syn".equals(type)))){
-                                return  true;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                            JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
+                            if (annotation==null){
+                                return false;
                             }
                         }
+                        if("all".equals(type)||(asyn&&"asyn".equals(type)||(!asyn&&"syn".equals(type)))){
+                                return  true;
+                        }
+
                     }
                 }
                 return false;
