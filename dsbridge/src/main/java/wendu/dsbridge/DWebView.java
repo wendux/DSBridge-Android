@@ -107,11 +107,11 @@ public class DWebView extends WebView {
                             if(isDebug) {
                                 handler.onValue(msg.obj);
                             }else{
-                              try{
-                                  handler.onValue(msg.obj);
-                              } catch (Exception e){
-                                  e.printStackTrace();
-                              }
+                                try{
+                                    handler.onValue(msg.obj);
+                                } catch (Exception e){
+                                    e.printStackTrace();
+                                }
                             }
                             if (msg.arg2 == 1) {
                                 handlerMap.remove(id);
@@ -199,12 +199,15 @@ public class DWebView extends WebView {
                 return ret.toString();
             }
 
-            JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
-            if (annotation == null) {
-                error = "Method " + methodName + " is not invoked, since  " +
-                        "it is not declared with JavascriptInterface annotation! ";
-                PrintDebugInfo(error);
-                return ret.toString();
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                JavascriptInterface   annotation = method.getAnnotation(JavascriptInterface.class);
+                if (annotation == null) {
+                    error = "Method " + methodName + " is not invoked, since  " +
+                            "it is not declared with JavascriptInterface annotation! ";
+                    PrintDebugInfo(error);
+                    return ret.toString();
+                }
             }
 
             Object retData ;
@@ -350,7 +353,6 @@ public class DWebView extends WebView {
             @Keep
             @JavascriptInterface
             public boolean hasNativeMethod(Object args) throws JSONException {
-
                 JSONObject jsonObject= (JSONObject) args;
                 String methodName = jsonObject.getString("name").trim();
                 String type =jsonObject.getString("type").trim();
@@ -372,12 +374,16 @@ public class DWebView extends WebView {
                         }
                     }
                     if(method!=null){
-                        JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
-                        if (annotation != null) {
-                            if("all".equals(type)||(asyn&&"asyn".equals(type)||(!asyn&&"syn".equals(type)))){
-                                return  true;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                            JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
+                            if (annotation==null){
+                                return false;
                             }
                         }
+                        if("all".equals(type)||(asyn&&"asyn".equals(type)||(!asyn&&"syn".equals(type)))){
+                            return  true;
+                        }
+
                     }
                 }
                 return false;
@@ -638,7 +644,7 @@ public class DWebView extends WebView {
             }
         }
 
-        @Override
+        @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
         public void onShowCustomView(View view, int requestedOrientation,
                                      CustomViewCallback callback) {
             if (webChromeClient != null) {
@@ -852,7 +858,6 @@ public class DWebView extends WebView {
 
 
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        @Override
         public void onPermissionRequest(PermissionRequest request) {
             if (webChromeClient != null) {
                 webChromeClient.onPermissionRequest(request);
@@ -925,7 +930,6 @@ public class DWebView extends WebView {
 
 
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        @Override
         public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
                                          FileChooserParams fileChooserParams) {
             if (webChromeClient != null) {
