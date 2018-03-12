@@ -13,11 +13,14 @@ var bridge = {
             arg['_dscbstub'] = cbName;
         }
         arg = JSON.stringify(arg)
+
+        //if in webview that dsBridge provided, call!
         if(window._dsbridge){
            ret=  _dsbridge.call(method, arg)
-        }else{
+        }else if(window._dswk||navigator.userAgent.indexOf("_dsbridge")!=-1){
            ret = prompt("_dsbridge=" + method, arg);
         }
+
        return  JSON.parse(ret).data
     },
     register: function (name, fun, asyn) {
