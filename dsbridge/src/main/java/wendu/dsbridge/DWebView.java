@@ -332,6 +332,9 @@ public class DWebView extends WebView {
         addInternalJavascriptObject();
         if(Build.VERSION.SDK_INT>Build.VERSION_CODES.JELLY_BEAN) {
             super.addJavascriptInterface(innerJavascriptInterface, BRIDGE_NAME);
+        }else{
+            // add bridge tag in lower android version
+            settings.setUserAgentString(settings.getUserAgentString()+" _dsbridge");
         }
 
     }

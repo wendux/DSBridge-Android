@@ -103,9 +103,9 @@ To use  dsBridge in your own project:
 
      ```javascript
      //cdn
-     //<script src="https://unpkg.com/dsbridge@3.0.7/dist/dsbridge.js"> </script>
+     //<script src="https://unpkg.com/dsbridge@3.0.8/dist/dsbridge.js"> </script>
      //npm
-     //npm install dsbridge@3.0.7
+     //npm install dsbridge@3.0.8
      var dsBridge=require("dsbridge")
      ```
 
