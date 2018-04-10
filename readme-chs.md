@@ -109,9 +109,9 @@ DSBridge v3.0 是一个里程碑版本，和v2.0相比，有许多变化，需�
 
      ```javascript
      //cdn方式引入初始化代码(中国地区慢，建议下载到本地工程)
-     //<script src="https://unpkg.com/dsbridge@3.0.9/dist/dsbridge.js"> </script>
+     //<script src="https://unpkg.com/dsbridge@3.1.0/dist/dsbridge.js"> </script>
      //npm方式安装初始化代码
-     //npm install dsbridge@3.0.9
+     //npm install dsbridge@3.1.0
      var dsBridge=require("dsbridge")
      ```
 
