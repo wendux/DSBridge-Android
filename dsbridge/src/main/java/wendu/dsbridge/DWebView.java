@@ -65,11 +65,12 @@ public class DWebView extends WebView {
     private static final int LOAD_URL_WITH_HEADERS = 3;
     private static final int JS_CLOSE_WINDOW = 4;
     private static final int JS_RETURN_VALUE = 5;
+    private static final int RELOAD= 6;
     WebChromeClient webChromeClient;
     MyHandler mainThreadHandler = null;
     private volatile boolean alertboxBlock = true;
     private JavascriptCloseWindowListener javascriptCloseWindowListener = null;
-    private ArrayList<CallInfo> callInfoList = new ArrayList<>();
+    private ArrayList<CallInfo> callInfoList;
     private InnerJavascriptInterface innerJavascriptInterface=new InnerJavascriptInterface();
 
 
@@ -97,6 +98,9 @@ public class DWebView extends WebView {
                         DWebView.super.loadUrl(info.url, info.headers);
                     }
                     break;
+                    case RELOAD:
+                        DWebView.super.reload();
+                        break;
                     case JS_CLOSE_WINDOW: {
                         if (javascriptCloseWindowListener == null
                                 || javascriptCloseWindowListener.onClose()) {
@@ -462,6 +466,7 @@ public class DWebView extends WebView {
      */
     @Override
     public void loadUrl(String url) {
+        callInfoList=new ArrayList<>();
         Message msg = new Message();
         msg.what = LOAD_URL;
         msg.obj = url;
@@ -477,9 +482,18 @@ public class DWebView extends WebView {
      */
     @Override
     public void loadUrl(String url, Map<String, String> additionalHttpHeaders) {
+        callInfoList=new ArrayList<>();
         Message msg = new Message();
         msg.what = LOAD_URL_WITH_HEADERS;
         msg.obj = new RequestInfo(url, additionalHttpHeaders);
+        mainThreadHandler.sendMessage(msg);
+    }
+
+    @Override
+    public void reload() {
+        callInfoList=new ArrayList<>();
+        Message msg = new Message();
+        msg.what = RELOAD;
         mainThreadHandler.sendMessage(msg);
     }
 
@@ -518,10 +532,12 @@ public class DWebView extends WebView {
     }
 
     private synchronized void dispatchStartupQueue() {
-        for (CallInfo info : callInfoList) {
-            dispatchJavascriptCall(info);
+        if(callInfoList!=null) {
+            for (CallInfo info : callInfoList) {
+                dispatchJavascriptCall(info);
+            }
+            callInfoList = null;
         }
-        callInfoList = null;
     }
 
     private void dispatchJavascriptCall(CallInfo info) {
