@@ -15,7 +15,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="18dp"
-            android:text="Because unpkg.com's CDN has a slower access in China, it's normal to open the test page sometimes, it's not a problem for DSBridge."
+            android:text="Because unpkg.com's CDN has a slower access speed in China, it's normal to open the test page slowly sometimes, it's not a problem for DSBridge."
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="18dp"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:text="由于测试页面(h5)中是通过unpkg的CDN引入的dsbridge.js，但unpkg在中国地区访问速度会比较慢，所以当您发现有时打开测试页面比较慢时是正常的，这并不是DSBridge的问题，所以建议您在使用时将dsbridge.js下载并集成到您的工程。"
             />
         <Button
             android:id="@+id/callJs"
