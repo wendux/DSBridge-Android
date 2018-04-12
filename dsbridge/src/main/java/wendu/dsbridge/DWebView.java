@@ -62,12 +62,13 @@ public class DWebView extends WebView {
     private static final int LOAD_URL_WITH_HEADERS = 3;
     private static final int JS_CLOSE_WINDOW = 4;
     private static final int JS_RETURN_VALUE = 5;
+    private static final int RELOAD = 6;
     WebChromeClient webChromeClient;
     MyHandler mainThreadHandler = null;
     private volatile boolean alertboxBlock = true;
     private JavascriptCloseWindowListener javascriptCloseWindowListener = null;
-    private ArrayList<CallInfo> callInfoList = new ArrayList<>();
-    private InnerJavascriptInterface innerJavascriptInterface=new InnerJavascriptInterface();
+    private ArrayList<CallInfo> callInfoList;
+    private InnerJavascriptInterface innerJavascriptInterface = new InnerJavascriptInterface();
 
     class MyHandler extends Handler {
         //  Using WeakReference to avoid memory leak
@@ -93,6 +94,9 @@ public class DWebView extends WebView {
                         DWebView.super.loadUrl(info.url, info.headers);
                     }
                     break;
+                    case RELOAD:
+                        DWebView.super.reload();
+                        break;
                     case JS_CLOSE_WINDOW: {
                         if (javascriptCloseWindowListener == null
                                 || javascriptCloseWindowListener.onClose()) {
@@ -104,14 +108,14 @@ public class DWebView extends WebView {
                         int id = msg.arg1;
                         OnReturnValue handler = handlerMap.get(id);
                         if (handler != null) {
-                            if(isDebug) {
+                            if (isDebug) {
                                 handler.onValue(msg.obj);
-                            }else{
-                              try{
-                                  handler.onValue(msg.obj);
-                              } catch (Exception e){
-                                  e.printStackTrace();
-                              }
+                            } else {
+                                try {
+                                    handler.onValue(msg.obj);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                             if (msg.arg2 == 1) {
                                 handlerMap.remove(id);
@@ -134,7 +138,7 @@ public class DWebView extends WebView {
         }
     }
 
-    class  InnerJavascriptInterface{
+    class InnerJavascriptInterface {
 
         private void PrintDebugInfo(String error) {
             Log.d(LOG_TAG, error);
@@ -151,9 +155,9 @@ public class DWebView extends WebView {
             String[] nameStr = parseNamespace(methodName.trim());
             methodName = nameStr[1];
             Object jsb = javaScriptNamespaceInterfaces.get(nameStr[0]);
-            JSONObject ret=new JSONObject();
+            JSONObject ret = new JSONObject();
             try {
-                ret.put("code",-1);
+                ret.put("code", -1);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -170,7 +174,7 @@ public class DWebView extends WebView {
                 if (args.has("_dscbstub")) {
                     callback = args.getString("_dscbstub");
                 }
-                arg=args.get("data");
+                arg = args.get("data");
             } catch (JSONException e) {
                 error = String.format("The argument of \"%s\" must be a JSON object string!", methodName);
                 PrintDebugInfo(error);
@@ -201,7 +205,7 @@ public class DWebView extends WebView {
 
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                JavascriptInterface   annotation = method.getAnnotation(JavascriptInterface.class);
+                JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
                 if (annotation == null) {
                     error = "Method " + methodName + " is not invoked, since  " +
                             "it is not declared with JavascriptInterface annotation! ";
@@ -210,7 +214,7 @@ public class DWebView extends WebView {
                 }
             }
 
-            Object retData ;
+            Object retData;
             method.setAccessible(true);
             try {
                 if (asyn) {
@@ -234,9 +238,9 @@ public class DWebView extends WebView {
 
                         private void complete(Object retValue, boolean complete) {
                             try {
-                                JSONObject ret=new JSONObject();
-                                ret.put("code",0);
-                                ret.put("data",retValue);
+                                JSONObject ret = new JSONObject();
+                                ret.put("code", 0);
+                                ret.put("data", retValue);
                                 //retValue = URLEncoder.encode(ret.toString(), "UTF-8").replaceAll("\\+", "%20");
                                 if (cb != null) {
                                     //String script = String.format("%s(JSON.parse(decodeURIComponent(\"%s\")).data);", cb, retValue);
@@ -253,15 +257,15 @@ public class DWebView extends WebView {
                     });
                 } else {
                     retData = method.invoke(jsb, arg);
-                    ret.put("code",0);
-                    ret.put("data",retData);
+                    ret.put("code", 0);
+                    ret.put("data", retData);
                     return ret.toString();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 error = String.format("Call failed：The parameter of \"%s\" in Java is invalid.", methodName);
                 PrintDebugInfo(error);
-                return  ret.toString();
+                return ret.toString();
             }
             return ret.toString();
         }
@@ -279,13 +283,13 @@ public class DWebView extends WebView {
 
 
     @Deprecated
-    public interface FileChooser{
+    public interface FileChooser {
         @TargetApi(Build.VERSION_CODES.HONEYCOMB)
         void openFileChooser(ValueCallback valueCallback, String acceptType);
 
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
         void openFileChooser(ValueCallback<Uri> valueCallback,
-                             String acceptType, String capture) ;
+                             String acceptType, String capture);
     }
 
     public DWebView(Context context, AttributeSet attrs) {
@@ -301,6 +305,7 @@ public class DWebView extends WebView {
     /**
      * Set debug mode. if in debug mode, some errors will be prompted by a dialog
      * and the exception caused by the native handlers will not be captured.
+     *
      * @param enabled
      */
     public static void setWebContentsDebuggingEnabled(boolean enabled) {
@@ -325,19 +330,19 @@ public class DWebView extends WebView {
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         settings.setJavaScriptEnabled(true);
         settings.setLoadWithOverviewMode(true);
-        settings.setSupportMultipleWindows(true);
         settings.setAppCachePath(APP_CACHE_DIRNAME);
         settings.setUseWideViewPort(true);
         super.setWebChromeClient(mWebChromeClient);
         addInternalJavascriptObject();
-        if(Build.VERSION.SDK_INT>Build.VERSION_CODES.JELLY_BEAN) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
             super.addJavascriptInterface(innerJavascriptInterface, BRIDGE_NAME);
-        }else{
-            // add bridge tag in lower android version
-            settings.setUserAgentString(settings.getUserAgentString()+" _dsbridge");
+        } else {
+            // add dsbridge tag in lower android version
+            settings.setUserAgentString(settings.getUserAgentString() + " _dsbridge");
         }
 
     }
+
 
     private String[] parseNamespace(String method) {
         int pos = method.lastIndexOf('.');
@@ -356,15 +361,15 @@ public class DWebView extends WebView {
             @Keep
             @JavascriptInterface
             public boolean hasNativeMethod(Object args) throws JSONException {
-                JSONObject jsonObject= (JSONObject) args;
+                JSONObject jsonObject = (JSONObject) args;
                 String methodName = jsonObject.getString("name").trim();
-                String type =jsonObject.getString("type").trim();
+                String type = jsonObject.getString("type").trim();
                 String[] nameStr = parseNamespace(methodName);
                 Object jsb = javaScriptNamespaceInterfaces.get(nameStr[0]);
                 if (jsb != null) {
                     Class<?> cls = jsb.getClass();
                     boolean asyn = false;
-                    Method method=null;
+                    Method method = null;
                     try {
                         method = cls.getDeclaredMethod(nameStr[1],
                                 new Class[]{Object.class, CompletionHandler.class});
@@ -376,15 +381,15 @@ public class DWebView extends WebView {
 
                         }
                     }
-                    if(method!=null){
+                    if (method != null) {
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
                             JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
-                            if (annotation==null){
+                            if (annotation == null) {
                                 return false;
                             }
                         }
-                        if("all".equals(type)||(asyn&&"asyn".equals(type)||(!asyn&&"syn".equals(type)))){
-                                return  true;
+                        if ("all".equals(type) || (asyn && "asyn".equals(type) || (!asyn && "syn".equals(type)))) {
+                            return true;
                         }
 
                     }
@@ -404,7 +409,7 @@ public class DWebView extends WebView {
             @Keep
             @JavascriptInterface
             public void disableJavascriptDialogBlock(Object object) throws JSONException {
-                JSONObject jsonObject= (JSONObject) object;
+                JSONObject jsonObject = (JSONObject) object;
                 alertboxBlock = !jsonObject.getBoolean("disable");
             }
 
@@ -417,12 +422,12 @@ public class DWebView extends WebView {
             @Keep
             @JavascriptInterface
             public void returnValue(Object obj) throws JSONException {
-                JSONObject jsonObject= (JSONObject) obj;
+                JSONObject jsonObject = (JSONObject) obj;
                 Message msg = new Message();
                 msg.what = JS_RETURN_VALUE;
                 msg.arg1 = jsonObject.getInt("id");
                 msg.arg2 = jsonObject.getBoolean("complete") ? 1 : 0;
-                if(jsonObject.has("data")) {
+                if (jsonObject.has("data")) {
                     msg.obj = jsonObject.get("data");
                 }
                 mainThreadHandler.sendMessage(msg);
@@ -464,6 +469,7 @@ public class DWebView extends WebView {
      */
     @Override
     public void loadUrl(String url) {
+        callInfoList = new ArrayList<>();
         Message msg = new Message();
         msg.what = LOAD_URL;
         msg.obj = url;
@@ -479,9 +485,18 @@ public class DWebView extends WebView {
      */
     @Override
     public void loadUrl(String url, Map<String, String> additionalHttpHeaders) {
+        callInfoList = new ArrayList<>();
         Message msg = new Message();
         msg.what = LOAD_URL_WITH_HEADERS;
         msg.obj = new RequestInfo(url, additionalHttpHeaders);
+        mainThreadHandler.sendMessage(msg);
+    }
+
+    @Override
+    public void reload() {
+        callInfoList = new ArrayList<>();
+        Message msg = new Message();
+        msg.what = RELOAD;
         mainThreadHandler.sendMessage(msg);
     }
 
@@ -520,17 +535,19 @@ public class DWebView extends WebView {
     }
 
     private synchronized void dispatchStartupQueue() {
-        for (CallInfo info : callInfoList) {
-            dispatchJavascriptCall(info);
+        if (callInfoList != null) {
+            for (CallInfo info : callInfoList) {
+                dispatchJavascriptCall(info);
+            }
+            callInfoList = null;
         }
-        callInfoList = null;
     }
 
     private void dispatchJavascriptCall(CallInfo info) {
         evaluateJavascript(String.format("window._handleMessageFromNative(%s)", info.toString()));
     }
 
-    public synchronized <T>  void callHandler(String method, Object[] args, final OnReturnValue<T> handler) {
+    public synchronized <T> void callHandler(String method, Object[] args, final OnReturnValue<T> handler) {
 
         CallInfo callInfo = new CallInfo(method, callID, args);
         if (handler != null) {
@@ -545,10 +562,11 @@ public class DWebView extends WebView {
 
     }
 
-    public  void callHandler(String method, Object[] args) {
+    public void callHandler(String method, Object[] args) {
         callHandler(method, args, null);
     }
-    public <T> void callHandler(String method,  OnReturnValue<T> handler){
+
+    public <T> void callHandler(String method, OnReturnValue<T> handler) {
         callHandler(method, null, handler);
     }
 
@@ -566,6 +584,7 @@ public class DWebView extends WebView {
     /**
      * Add a java object which implemented the javascript interfaces to dsBridge with namespace.
      * Remove the object using {@link #removeJavascriptObject(String) removeJavascriptObject(String)}
+     *
      * @param object
      * @param namespace if empty, the object have no namespace.
      */
@@ -580,6 +599,7 @@ public class DWebView extends WebView {
 
     /**
      * remove the javascript object with supplied namespace.
+     *
      * @param namespace
      */
     public void removeJavascriptObject(String namespace) {
@@ -757,10 +777,10 @@ public class DWebView extends WebView {
         public boolean onJsPrompt(WebView view, String url, final String message,
                                   String defaultValue, final JsPromptResult result) {
 
-            if(Build.VERSION.SDK_INT<=Build.VERSION_CODES.JELLY_BEAN) {
-                String prefix="_dsbridge=";
-                if(message.startsWith(prefix)){
-                    result.confirm(innerJavascriptInterface.call(message.substring(prefix.length()),defaultValue));
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
+                String prefix = "_dsbridge=";
+                if (message.startsWith(prefix)) {
+                    result.confirm(innerJavascriptInterface.call(message.substring(prefix.length()), defaultValue));
                     return true;
                 }
             }
@@ -945,8 +965,8 @@ public class DWebView extends WebView {
         @Keep
         @TargetApi(Build.VERSION_CODES.HONEYCOMB)
         public void openFileChooser(ValueCallback valueCallback, String acceptType) {
-            if(webChromeClient instanceof FileChooser){
-                ((FileChooser)webChromeClient).openFileChooser(valueCallback,acceptType);
+            if (webChromeClient instanceof FileChooser) {
+                ((FileChooser) webChromeClient).openFileChooser(valueCallback, acceptType);
             }
         }
 
@@ -955,8 +975,8 @@ public class DWebView extends WebView {
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
         public void openFileChooser(ValueCallback<Uri> valueCallback,
                                     String acceptType, String capture) {
-            if(webChromeClient instanceof FileChooser){
-                ((FileChooser)webChromeClient).openFileChooser(valueCallback,acceptType,capture);
+            if (webChromeClient instanceof FileChooser) {
+                ((FileChooser) webChromeClient).openFileChooser(valueCallback, acceptType, capture);
             }
         }
 
