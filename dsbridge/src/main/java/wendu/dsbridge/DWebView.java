@@ -186,12 +186,12 @@ public class DWebView extends WebView {
             Class<?> cls = jsb.getClass();
             boolean asyn = false;
             try {
-                method = cls.getDeclaredMethod(methodName,
+                method = cls.getMethod(methodName,
                         new Class[]{Object.class, CompletionHandler.class});
                 asyn = true;
             } catch (Exception e) {
                 try {
-                    method = cls.getDeclaredMethod(methodName, new Class[]{Object.class});
+                    method = cls.getMethod(methodName, new Class[]{Object.class});
                 } catch (Exception ex) {
 
                 }
@@ -371,12 +371,12 @@ public class DWebView extends WebView {
                     boolean asyn = false;
                     Method method = null;
                     try {
-                        method = cls.getDeclaredMethod(nameStr[1],
+                        method = cls.getMethod(nameStr[1],
                                 new Class[]{Object.class, CompletionHandler.class});
                         asyn = true;
                     } catch (Exception e) {
                         try {
-                            method = cls.getDeclaredMethod(nameStr[1], new Class[]{Object.class});
+                            method = cls.getMethod(nameStr[1], new Class[]{Object.class});
                         } catch (Exception ex) {
 
                         }
