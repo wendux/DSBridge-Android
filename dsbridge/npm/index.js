@@ -6,7 +6,7 @@ var bridge = {
             cb = args;
             args = {};
         }
-        var arg={data:args===undefined?"":args}
+        var arg={data:args===undefined?null:args}
         if (typeof cb == 'function') {
             var cbName = 'dscb' + window.dscb++;
             window[cbName] = cb;
