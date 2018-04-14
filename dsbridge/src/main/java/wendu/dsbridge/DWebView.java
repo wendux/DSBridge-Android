@@ -165,7 +165,7 @@ public class DWebView extends WebView {
                 PrintDebugInfo(error);
                 return ret.toString();
             }
-            Object arg;
+            Object arg=null;
             Method method = null;
             String callback = null;
 
@@ -174,7 +174,9 @@ public class DWebView extends WebView {
                 if (args.has("_dscbstub")) {
                     callback = args.getString("_dscbstub");
                 }
-                arg = args.get("data");
+                if(args.has("data")) {
+                    arg = args.get("data");
+                }
             } catch (JSONException e) {
                 error = String.format("The argument of \"%s\" must be a JSON object string!", methodName);
                 PrintDebugInfo(error);
