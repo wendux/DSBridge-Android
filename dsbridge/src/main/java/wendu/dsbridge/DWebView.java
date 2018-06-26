@@ -442,7 +442,7 @@ public class DWebView extends WebView {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             DWebView.super.evaluateJavascript(script, null);
         } else {
-            loadUrl("javascript:" + script);
+            super.loadUrl("javascript:" + script);
         }
     }
 
