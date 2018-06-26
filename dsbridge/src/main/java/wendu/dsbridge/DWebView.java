@@ -1,5 +1,6 @@
 package wendu.dsbridge;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
@@ -38,7 +39,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,91 +54,18 @@ public class DWebView extends WebView {
     private static final String BRIDGE_NAME = "_dsbridge";
     private static final String LOG_TAG = "dsBridge";
     private static boolean isDebug = false;
-    private Map<String, Object> javaScriptNamespaceInterfaces = new HashMap();
+    private Map<String, Object> javaScriptNamespaceInterfaces = new HashMap<String, Object>();
     private String APP_CACHE_DIRNAME;
-    int callID = 0;
-    private static final int EXEC_SCRIPT = 1;
-    private static final int LOAD_URL = 2;
-    private static final int LOAD_URL_WITH_HEADERS = 3;
-    private static final int JS_CLOSE_WINDOW = 4;
-    private static final int JS_RETURN_VALUE = 5;
-    private static final int RELOAD = 6;
-    WebChromeClient webChromeClient;
-    MyHandler mainThreadHandler = null;
-    private volatile boolean alertboxBlock = true;
+    private int callID = 0;
+    private WebChromeClient webChromeClient;
+
+    private volatile boolean alertBoxBlock = true;
     private JavascriptCloseWindowListener javascriptCloseWindowListener = null;
     private ArrayList<CallInfo> callInfoList;
     private InnerJavascriptInterface innerJavascriptInterface = new InnerJavascriptInterface();
+    private Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    class MyHandler extends Handler {
-        //  Using WeakReference to avoid memory leak
-        WeakReference<Activity> mActivityReference;
-
-        MyHandler(Activity activity) {
-            mActivityReference = new WeakReference<>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            final Activity activity = mActivityReference.get();
-            if (activity != null) {
-                switch (msg.what) {
-                    case EXEC_SCRIPT:
-                        _evaluateJavascript((String) msg.obj);
-                        break;
-                    case LOAD_URL:
-                        DWebView.super.loadUrl((String) msg.obj);
-                        break;
-                    case LOAD_URL_WITH_HEADERS: {
-                        RequestInfo info = (RequestInfo) msg.obj;
-                        DWebView.super.loadUrl(info.url, info.headers);
-                    }
-                    break;
-                    case RELOAD:
-                        DWebView.super.reload();
-                        break;
-                    case JS_CLOSE_WINDOW: {
-                        if (javascriptCloseWindowListener == null
-                                || javascriptCloseWindowListener.onClose()) {
-                            ((Activity) getContext()).onBackPressed();
-                        }
-                    }
-                    break;
-                    case JS_RETURN_VALUE: {
-                        int id = msg.arg1;
-                        OnReturnValue handler = handlerMap.get(id);
-                        if (handler != null) {
-                            if (isDebug) {
-                                handler.onValue(msg.obj);
-                            } else {
-                                try {
-                                    handler.onValue(msg.obj);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            if (msg.arg2 == 1) {
-                                handlerMap.remove(id);
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
-    class RequestInfo {
-        String url;
-        Map<String, String> headers;
-
-        RequestInfo(String url, Map<String, String> additionalHttpHeaders) {
-            this.url = url;
-            this.headers = additionalHttpHeaders;
-        }
-    }
-
-    class InnerJavascriptInterface {
+    private class InnerJavascriptInterface {
 
         private void PrintDebugInfo(String error) {
             Log.d(LOG_TAG, error);
@@ -250,6 +177,7 @@ public class DWebView extends WebView {
                                     if (complete) {
                                         script += "delete window." + cb;
                                     }
+                                    //Log.d(LOG_TAG, "complete " + script);
                                     evaluateJavascript(script);
                                 }
                             } catch (Exception e) {
@@ -317,9 +245,8 @@ public class DWebView extends WebView {
         isDebug = enabled;
     }
 
-
-    void init() {
-        mainThreadHandler = new MyHandler((Activity) getContext());
+    @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
+    private void init() {
         APP_CACHE_DIRNAME = getContext().getFilesDir().getAbsolutePath() + "/webcache";
         WebSettings settings = getSettings();
         settings.setDomStorageEnabled(true);
@@ -342,7 +269,6 @@ public class DWebView extends WebView {
             // add dsbridge tag in lower android version
             settings.setUserAgentString(settings.getUserAgentString() + " _dsbridge");
         }
-
     }
 
 
@@ -402,9 +328,18 @@ public class DWebView extends WebView {
             @Keep
             @JavascriptInterface
             public String closePage(Object object) throws JSONException {
-                Message msg = new Message();
-                msg.what = JS_CLOSE_WINDOW;
-                mainThreadHandler.sendMessage(msg);
+                runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (javascriptCloseWindowListener == null
+                                || javascriptCloseWindowListener.onClose()) {
+                            Context context = getContext();
+                            if (context instanceof Activity) {
+                                ((Activity)context).onBackPressed();
+                            }
+                        }
+                    }
+                });
                 return null;
             }
 
@@ -412,7 +347,7 @@ public class DWebView extends WebView {
             @JavascriptInterface
             public void disableJavascriptDialogBlock(Object object) throws JSONException {
                 JSONObject jsonObject = (JSONObject) object;
-                alertboxBlock = !jsonObject.getBoolean("disable");
+                alertBoxBlock = !jsonObject.getBoolean("disable");
             }
 
             @Keep
@@ -423,16 +358,30 @@ public class DWebView extends WebView {
 
             @Keep
             @JavascriptInterface
-            public void returnValue(Object obj) throws JSONException {
-                JSONObject jsonObject = (JSONObject) obj;
-                Message msg = new Message();
-                msg.what = JS_RETURN_VALUE;
-                msg.arg1 = jsonObject.getInt("id");
-                msg.arg2 = jsonObject.getBoolean("complete") ? 1 : 0;
-                if (jsonObject.has("data")) {
-                    msg.obj = jsonObject.get("data");
-                }
-                mainThreadHandler.sendMessage(msg);
+            public void returnValue(final Object obj){
+                runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject jsonObject = (JSONObject) obj;
+                        Object data = null;
+                        try {
+                            int id = jsonObject.getInt("id");
+                            boolean isCompleted = jsonObject.getBoolean("complete");
+                            OnReturnValue handler = handlerMap.get(id);
+                            if (jsonObject.has("data")) {
+                                data = jsonObject.get("data");
+                            }
+                            if (handler != null) {
+                                handler.onValue(data);
+                                if (isCompleted) {
+                                    handlerMap.remove(id);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }
 
         }, "_dsb");
@@ -442,7 +391,7 @@ public class DWebView extends WebView {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             DWebView.super.evaluateJavascript(script, null);
         } else {
-            loadUrl("javascript:" + script);
+            super.loadUrl("javascript:" + script);
         }
     }
 
@@ -453,14 +402,12 @@ public class DWebView extends WebView {
      * @param script
      */
     public void evaluateJavascript(final String script) {
-        if (Looper.getMainLooper() == Looper.myLooper()) {
-            _evaluateJavascript(script);
-        } else {
-            Message msg = new Message();
-            msg.what = EXEC_SCRIPT;
-            msg.obj = script;
-            mainThreadHandler.sendMessage(msg);
-        }
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                _evaluateJavascript(script);
+            }
+        });
     }
 
     /**
@@ -470,12 +417,14 @@ public class DWebView extends WebView {
      * @param url
      */
     @Override
-    public void loadUrl(String url) {
-        callInfoList = new ArrayList<>();
-        Message msg = new Message();
-        msg.what = LOAD_URL;
-        msg.obj = url;
-        mainThreadHandler.sendMessage(msg);
+    public void loadUrl(final String url) {
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                callInfoList = new ArrayList<>();
+                DWebView.super.loadUrl(url);
+            }
+        });
     }
 
     /**
@@ -486,20 +435,25 @@ public class DWebView extends WebView {
      * @param additionalHttpHeaders
      */
     @Override
-    public void loadUrl(String url, Map<String, String> additionalHttpHeaders) {
-        callInfoList = new ArrayList<>();
-        Message msg = new Message();
-        msg.what = LOAD_URL_WITH_HEADERS;
-        msg.obj = new RequestInfo(url, additionalHttpHeaders);
-        mainThreadHandler.sendMessage(msg);
+    public void loadUrl(final String url, final Map<String, String> additionalHttpHeaders) {
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                callInfoList = new ArrayList<>();
+                DWebView.super.loadUrl(url, additionalHttpHeaders);
+            }
+        });
     }
 
     @Override
     public void reload() {
-        callInfoList = new ArrayList<>();
-        Message msg = new Message();
-        msg.what = RELOAD;
-        mainThreadHandler.sendMessage(msg);
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                callInfoList = new ArrayList<>();
+                DWebView.super.reload();
+            }
+        });
     }
 
     /**
@@ -510,8 +464,12 @@ public class DWebView extends WebView {
     }
 
 
-    private class CallInfo {
-        public CallInfo(String handlerName, int id, Object[] args) {
+    private static class CallInfo {
+        private String data;
+        private int callbackId;
+        private String method;
+
+        CallInfo(String handlerName, int id, Object[] args) {
             if (args == null) args = new Object[0];
             data = new JSONArray(Arrays.asList(args)).toString();
             callbackId = id;
@@ -530,10 +488,6 @@ public class DWebView extends WebView {
             }
             return jo.toString();
         }
-
-        public String data = null;
-        public int callbackId;
-        public String method;
     }
 
     private synchronized void dispatchStartupQueue() {
@@ -614,7 +568,7 @@ public class DWebView extends WebView {
 
 
     public void disableJavascriptDialogBlock(boolean disable) {
-        alertboxBlock = !disable;
+        alertBoxBlock = !disable;
     }
 
     @Override
@@ -718,7 +672,7 @@ public class DWebView extends WebView {
 
         @Override
         public boolean onJsAlert(WebView view, String url, final String message, final JsResult result) {
-            if (!alertboxBlock) {
+            if (!alertBoxBlock) {
                 result.confirm();
             }
             if (webChromeClient != null) {
@@ -733,7 +687,7 @@ public class DWebView extends WebView {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
-                            if (alertboxBlock) {
+                            if (alertBoxBlock) {
                                 result.confirm();
                             }
                         }
@@ -746,7 +700,7 @@ public class DWebView extends WebView {
         @Override
         public boolean onJsConfirm(WebView view, String url, String message,
                                    final JsResult result) {
-            if (!alertboxBlock) {
+            if (!alertBoxBlock) {
                 result.confirm();
             }
             if (webChromeClient != null && webChromeClient.onJsConfirm(view, url, message, result)) {
@@ -755,7 +709,7 @@ public class DWebView extends WebView {
                 DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (alertboxBlock) {
+                        if (alertBoxBlock) {
                             if (which == Dialog.BUTTON_POSITIVE) {
                                 result.confirm();
                             } else {
@@ -787,7 +741,7 @@ public class DWebView extends WebView {
                 }
             }
 
-            if (!alertboxBlock) {
+            if (!alertBoxBlock) {
                 result.confirm();
             }
 
@@ -803,7 +757,7 @@ public class DWebView extends WebView {
                 DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (alertboxBlock) {
+                        if (alertBoxBlock) {
                             if (which == Dialog.BUTTON_POSITIVE) {
                                 result.confirm(editText.getText().toString());
                             } else {
@@ -1024,5 +978,16 @@ public class DWebView extends WebView {
             Log.e("Webview", "delete file no exists " + file.getAbsolutePath());
         }
     }
+
+    private void runOnMainThread(Runnable runnable) {
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            runnable.run();
+            return;
+        }
+        mainHandler.post(runnable);
+    }
+
+
+
 
 }
