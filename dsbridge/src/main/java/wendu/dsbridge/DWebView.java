@@ -421,8 +421,12 @@ public class DWebView extends WebView {
         runOnMainThread(new Runnable() {
             @Override
             public void run() {
-                callInfoList = new ArrayList<>();
-                DWebView.super.loadUrl(url);
+                if (url != null && url.startsWith("javascript:")){
+                    DWebView.super.loadUrl(url);
+                }else{
+                    callInfoList = new ArrayList<>();
+                    DWebView.super.loadUrl(url);
+                }
             }
         });
     }
@@ -439,8 +443,12 @@ public class DWebView extends WebView {
         runOnMainThread(new Runnable() {
             @Override
             public void run() {
-                callInfoList = new ArrayList<>();
-                DWebView.super.loadUrl(url, additionalHttpHeaders);
+                if (url != null && url.startsWith("javascript:")){
+                    DWebView.super.loadUrl(url, additionalHttpHeaders);
+                }else{
+                    callInfoList = new ArrayList<>();
+                    DWebView.super.loadUrl(url, additionalHttpHeaders);
+                }
             }
         });
     }
