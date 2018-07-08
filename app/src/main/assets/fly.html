@@ -73,7 +73,11 @@
            //data is encoded with base64
            img.src=d.data;
            btn.innerText="look!"
+         }).catch(function(e){
+            alert(e.message)
+            btn.innerText="retry!"
          })
+
      })
 
 </script>
