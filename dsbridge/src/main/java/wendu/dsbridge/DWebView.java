@@ -174,7 +174,7 @@ public class DWebView extends WebView {
                 if (args.has("_dscbstub")) {
                     callback = args.getString("_dscbstub");
                 }
-                if(args.has("data")){
+                if(args.has("data")) {
                     arg = args.get("data");
                 }
             } catch (JSONException e) {
