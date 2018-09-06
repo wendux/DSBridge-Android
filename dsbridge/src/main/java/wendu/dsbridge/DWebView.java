@@ -513,9 +513,9 @@ public class DWebView extends WebView {
 
     public synchronized <T> void callHandler(String method, Object[] args, final OnReturnValue<T> handler) {
 
-        CallInfo callInfo = new CallInfo(method, callID, args);
+        CallInfo callInfo = new CallInfo(method, callID++, args);
         if (handler != null) {
-            handlerMap.put(callID++, handler);
+            handlerMap.put(callInfo.callbackId, handler);
         }
 
         if (callInfoList != null) {
