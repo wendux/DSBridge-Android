@@ -515,7 +515,7 @@ public class DWebView extends WebView {
 
         CallInfo callInfo = new CallInfo(method, ++callID, args);
         if (handler != null) {
-            handlerMap.put(++callID, handler);
+            handlerMap.put(callInfo.callbackId, handler);
         }
 
         if (callInfoList != null) {
