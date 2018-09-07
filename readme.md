@@ -148,7 +148,7 @@ In order to be compatible with IOS , we make the following convention  on Java A
 
    **` public any handler(Object msg) `**
 
-   The argument type must be Object, and the type of return value  is not limited.
+   The argument type must be Object and must declare(although it not need)，and the type of return value  is not limited.
 
 2. For asynchronous API.
 
