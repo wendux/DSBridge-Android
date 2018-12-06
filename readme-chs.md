@@ -62,7 +62,6 @@ DSBridge v3.0 是一个里程碑版本，和v2.0相比，有许多变化，需�
 
    ```groovy
    dependencies {
-   	compile 'com.github.wendux:DSBridge-Android:master-SNAPSHOT'
    	//compile 'com.github.wendux:DSBridge-Android:3.0-SNAPSHOT'
    	//support the x5 browser core of tencent
    	//compile 'com.github.wendux:DSBridge-Android:x5-3.0-SNAPSHOT'
