@@ -680,18 +680,7 @@ public class DWebView extends WebView {
                 }
             }
 
-            Context context = getContext();
-            if(context instanceof Activity){
-                Activity activity = (Activity) context;
-                if(activity.isFinishing()){
-                    return true;
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    if(activity.isDestroyed()){
-                        return true;
-                    }
-                }
-            }
+            if (isActivityFinishing()) return true;
 
             Dialog alertDialog = new AlertDialog.Builder(getContext()).
                     setMessage(message).
@@ -732,18 +721,7 @@ public class DWebView extends WebView {
                     }
                 };
 
-                Context context = getContext();
-                if(context instanceof Activity){
-                    Activity activity = (Activity) context;
-                    if(activity.isFinishing()){
-                        return true;
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        if(activity.isDestroyed()){
-                            return true;
-                        }
-                    }
-                }
+                if (isActivityFinishing()) return true;
 
                 new AlertDialog.Builder(getContext())
                         .setMessage(message)
@@ -794,18 +772,7 @@ public class DWebView extends WebView {
                     }
                 };
 
-                Context context = getContext();
-                if(context instanceof Activity){
-                    Activity activity = (Activity) context;
-                    if(activity.isFinishing()){
-                        return true;
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        if(activity.isDestroyed()){
-                            return true;
-                        }
-                    }
-                }
+                if (isActivityFinishing()) return true;
 
                 new AlertDialog.Builder(getContext())
                         .setTitle(message)
@@ -948,6 +915,22 @@ public class DWebView extends WebView {
         }
 
     };
+
+    private boolean isActivityFinishing() {
+        Context context = getContext();
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            if (activity.isFinishing()) {
+                return true;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                if (activity.isDestroyed()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     @Override
     public void clearCache(boolean includeDiskFiles) {
