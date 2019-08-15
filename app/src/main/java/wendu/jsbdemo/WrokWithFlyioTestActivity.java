@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import wendu.dsbridge.CompletionHandler;
 import wendu.dsbridge.DWebView;
+import wendu.dsbridge.WebViewEventImpl;
 
 public class WrokWithFlyioTestActivity extends AppCompatActivity {
 
@@ -15,8 +16,9 @@ public class WrokWithFlyioTestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wrok_with_flyio_test);
-        DWebView dWebView= (DWebView) findViewById(R.id.webview);
-        dWebView.addJavascriptObject(new Object(){
+        DWebView dWebView = findViewById(R.id.webview);
+        WebViewEventImpl webViewEvent = new WebViewEventImpl(dWebView);
+        webViewEvent.addJavascriptObject(new Object() {
 
             /**
              * Note: This method is for Fly.js
@@ -26,13 +28,13 @@ public class WrokWithFlyioTestActivity extends AppCompatActivity {
              * @param handler
              */
             @JavascriptInterface
-            public void onAjaxRequest(Object requestData, CompletionHandler handler){
+            public void onAjaxRequest(Object requestData, CompletionHandler handler) {
                 // Handle ajax request redirected by Fly
-                AjaxHandler.onAjaxRequest((JSONObject)requestData,handler);
+                AjaxHandler.onAjaxRequest((JSONObject) requestData, handler);
             }
 
-        },null);
+        }, null);
 
-        dWebView.loadUrl("file:///android_asset/fly.html");
+        webViewEvent.loadUrl("file:///android_asset/fly.html");
     }
 }
