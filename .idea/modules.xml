@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/DSBridge.iml" filepath="$PROJECT_DIR$/DSBridge.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DSBridge-Android.iml" filepath="$PROJECT_DIR$/DSBridge-Android.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/dsbridge/dsbridge.iml" filepath="$PROJECT_DIR$/dsbridge/dsbridge.iml" />
     </modules>
