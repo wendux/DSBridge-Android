@@ -61,6 +61,7 @@ public class WebViewEventImpl implements WebViewEvent {
     private ArrayList<CallInfo> callInfoList = null;
     private int callID = 0;
     private WebChromeClient webChromeClient;
+    int MIXED_CONTENT_ALWAYS_ALLOW = 0;
 
 
     public DWebView getWebView() {
@@ -160,7 +161,7 @@ public class WebViewEventImpl implements WebViewEvent {
         mDWebView.destroy();
     }
 
-    int MIXED_CONTENT_ALWAYS_ALLOW = 0;
+
 
     @SuppressLint({"AddJavascriptInterface", "SetJavaScriptEnabled"})
     @Override

@@ -10,15 +10,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Method;
 
-/**
- * <pre>
- *     author : sunqiao
- *     e-mail : sunqiao@kayak.com.cn
- *     time   : 2019/08/15
- *     desc   :
- *     version: 1.0
- * </pre>
- */
+
 public class JsBridgeObject {
 
     private WebViewEventImpl mWebViewEvent;

@@ -6,8 +6,8 @@ import java.util.Map;
 
 /**
  * <pre>
- *     author : sunqiao
- *     e-mail : sunqiao@kayak.com.cn
+ *     author : senjoeson
+ *     e-mail : senjoeson@foxmail.com
  *     time   : 2019/08/15
  *     desc   : webview行为外部代理,抽取
  *     version: 1.0
