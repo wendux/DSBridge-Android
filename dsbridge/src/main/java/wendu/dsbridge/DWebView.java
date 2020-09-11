@@ -149,7 +149,7 @@ public class DWebView extends WebView {
             try {
                 if (asyn) {
                     final String cb = callback;
-                    method.invoke(jsb, arg, new CompletionHandler() {
+                    retData = method.invoke(jsb, arg, new CompletionHandler() {
 
                         @Override
                         public void complete(Object retValue) {
@@ -186,6 +186,8 @@ public class DWebView extends WebView {
                             }
                         }
                     });
+                    ret.put("code", 0);
+                    ret.put("data", retData);
                 } else {
                     retData = method.invoke(jsb, arg);
                     ret.put("code", 0);
